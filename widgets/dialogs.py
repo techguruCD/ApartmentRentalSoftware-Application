@@ -12,6 +12,8 @@ class UtilityDialog(QtWidgets.QDialog):
     def __init__(self, electricity: float = 0, water: float = 0, taxes: float = 0) -> None:
         super().__init__()
 
+        self.setWindowTitle(tr('UtilityDialog - Title', 'Enter utility payment details'))
+
         self.is_accepted = False
 
         self.setObjectName('Window')

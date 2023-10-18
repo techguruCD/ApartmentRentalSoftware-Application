@@ -45,6 +45,9 @@
     border-bottom: 1px solid #597FAE;
     border-right: 1px solid #597FAE;
 }
+#Table QHeaderView::section:horizontal:first {
+    border-top-left-radius: 2.5px;
+}
 #Table QHeaderView::section:vertical {
     border-right: 1px solid #597FAE;
     border-bottom: 1px solid #597FAE;
@@ -113,6 +116,12 @@
     background-color: #597FAE;
     border: 2px solid #6498D4;
 }
+
+#IconButton {
+    border: none;
+    background-color: transparent;
+}
+
 QScrollBar:horizontal {
     border: none;
     background-color:#FFFFFF;
