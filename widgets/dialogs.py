@@ -3,7 +3,7 @@ from PySide6 import(
     QtGui,
     QtWidgets
 )
-from PySide_Widgets import NamedHObjectLayout
+# from PySide_Widgets import NamedHObjectLayout
 
 tr = QtCore.QCoreApplication.translate
 label_font = QtGui.QFont('Open Sans', 16, 400)
@@ -20,8 +20,8 @@ class UtilityDialog(QtWidgets.QDialog):
         water_field = QtWidgets.QDoubleSpinBox(minimum=0, maximum=999999999, value=water)
         tax_field = QtWidgets.QDoubleSpinBox(minimum=0, maximum=999999999, value=tax)
 
-        layout.addLayout(NamedHObjectLayout(tr('UtilityDialog - Electricity', 'Electricity'), electricity_field, 'left', font=label_font))
-        layout.addLayout(NamedHObjectLayout(tr('UtilityDialog - Water', 'Water'), water_field, 'left', font=label_font))
-        layout.addLayout(NamedHObjectLayout(tr('UtilityDialog - Tax', 'Tax'), tax_field, 'left', font=label_font))
+        # layout.addLayout(NamedHObjectLayout(tr('UtilityDialog - Electricity', 'Electricity'), electricity_field, 'left', font=label_font))
+        # layout.addLayout(NamedHObjectLayout(tr('UtilityDialog - Water', 'Water'), water_field, 'left', font=label_font))
+        # layout.addLayout(NamedHObjectLayout(tr('UtilityDialog - Tax', 'Tax'), tax_field, 'left', font=label_font))
 
         self.setLayout(layout)
