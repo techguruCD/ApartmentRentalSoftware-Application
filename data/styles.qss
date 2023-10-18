@@ -1,0 +1,106 @@
+* {
+    font-family: 'Open Sans';
+}
+#Table {
+    background-color: #FFFFFF;
+    border: 1px solid #597FAE;
+    border-radius: 5px;
+    font-size: 16px;
+    gridline-color: #597FAE;
+    color: #000000;
+}
+#Table::item:selected {
+    background-color: #97B2DF;
+    color: #000000;
+}
+#Table QHeaderView {
+    background-color: #FFFFFF;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+#Table QTableCornerButton::section {
+    background-color: #FFFFFF;
+    border-right: 1px solid #597FAE;
+    border-bottom: 1px solid #597FAE;
+    border-top-left-radius: 2.5px;
+}
+#Table QHeaderView::section {
+    background-color: #FFFFFF;
+    color: #000000;
+    border: none;
+    outline: none;
+}
+
+#Table QHeaderView::section:horizontal {
+    border-bottom: 1px solid #597FAE;
+    border-right: 1px solid #597FAE;
+}
+#Table QHeaderView::section:vertical {
+    border-right: 1px solid #597FAE;
+    border-bottom: 1px solid #597FAE;
+}
+#Table QScrollArea {
+    background-color: transparent;
+    border: none;
+}
+#Table::indicator {
+    border: 1px solid #597FAE;
+}
+
+#Table::indicator:checked {
+    image: url('data/check.svg');
+}
+
+QScrollBar:horizontal {
+    border: none;
+    background-color:#FFFFFF;
+    height: 10px;
+    border-radius: 0px;
+    border-bottom-left-radius: 2.5px;
+    border-bottom-right-radius: 2.5px;
+}
+QScrollBar::handle:horizontal {
+    background: #97B2DF;
+    min-width: 20px;
+    border-radius: 5px;
+    border: none;
+}
+QScrollBar::add-line:horizontal {
+    width: 0;
+}
+QScrollBar::sub-line:horizontal {
+    width: 0;
+}
+QScrollBar::up-arrow:horizontal, QScrollBar::down-arrow:horizontal {
+    background: none;
+}
+QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
+    background: none;
+}
+QScrollBar:vertical {
+    border: none;
+    background-color: #FFFFFF;
+    width: 10px;
+    border-radius: 0px;
+    border-bottom-right-radius: 2.5px;
+    border-top-right-radius: 2.5px;
+}
+QScrollBar::handle:vertical {	
+    background: #97B2DF;
+    min-height: 20px;
+    border-radius: 5px;
+    border: none;
+}
+QScrollBar::add-line:vertical {
+    height: 0;
+}
+QScrollBar::sub-line:vertical {
+    height: 0;
+}
+QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {
+    background: none;
+}
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+    background: none;
+}
