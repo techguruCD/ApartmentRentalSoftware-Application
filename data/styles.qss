@@ -1,3 +1,12 @@
+/* colors:
+    #FFFFFF;
+    #000000;
+
+    #97B2DF
+    #6498D4;
+    #597FAE;
+*/
+
 * {
     font-family: 'Open Sans';
 }
@@ -52,6 +61,58 @@
     image: url('data/check.svg');
 }
 
+#Input {
+    border: none;
+    background-color: transparent;
+    color: #000000;
+    font-size: 16px;
+}
+#Input::up-button {
+    width: 20px;
+    subcontrol-origin: margin;
+    subcontrol-position: right top;
+}
+#Input::down-button {
+    width: 20px;
+    subcontrol-origin: margin;
+    subcontrol-position: right bottom;
+}
+#InputWrapper {
+    background-color: #FFFFFF;
+}
+#InputWrapper QLabel {
+    margin-left: 10px;
+    color: #000000;
+    background-color: #FFFFFF;
+    padding: 0 5px;
+}
+#InputWrapper #Input {
+    margin-bottom: 5px;
+}
+#InputWrapperBorder {
+    border: 2px solid #6498D4;
+    border-radius: 5px;
+}
+
+#Window {
+    background-color: #FFFFFF;
+}
+
+#DialogButton {
+    font-size: 16px;
+    background-color: #6498D4;
+    color:#FFFFFF;
+    border: 2px solid #6498D4;
+    padding: 5px 10px;
+    border-radius: 10px;
+}
+#DialogButton:hover {
+    border: 2px solid #597FAE;
+}
+#DialogButton:pressed {
+    background-color: #597FAE;
+    border: 2px solid #6498D4;
+}
 QScrollBar:horizontal {
     border: none;
     background-color:#FFFFFF;
