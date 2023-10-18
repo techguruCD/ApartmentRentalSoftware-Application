@@ -3,7 +3,9 @@ from PySide6 import(
     QtGui,
     QtWidgets
 )
-from tablemodels.tablemodels import RentPaymentTableModel
+from tablemodels.RentPaymentTableModel import (
+    RentPaymentTableModel
+)
 from widgets.elements import InputWrapper
 
 tr = QtCore.QCoreApplication.translate
