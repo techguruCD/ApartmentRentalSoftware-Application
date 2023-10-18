@@ -4,7 +4,7 @@ from PySide6 import(
     QtWidgets
 )
 
-class ImputWrapper(QtWidgets.QFrame):
+class InputWrapper(QtWidgets.QFrame):
     def __init__(self, text: str, widget: QtWidgets.QWidget):
         super().__init__()
 
