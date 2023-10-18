@@ -4,7 +4,9 @@ from PySide6 import (
     QtWidgets
 )
 tr = QtCore.QCoreApplication.translate
-import tablemodels.tablemodels as tablemodels
+from tablemodels.RentPaymentTableModel import (
+    RentPaymentTableModel
+)
 import widgets.dialogs as dialogs
 
 class MainWindow(QtWidgets.QMainWindow):
