@@ -70,10 +70,12 @@
 #Input::up-button {
     width: 20px;
     subcontrol-origin: margin;
+    subcontrol-position: right top;
 }
 #Input::down-button {
     width: 20px;
     subcontrol-origin: margin;
+    subcontrol-position: right bottom;
 }
 #InputWrapper {
     background-color: #FFFFFF;
@@ -86,7 +88,6 @@
 }
 #InputWrapper #Input {
     margin-bottom: 5px;
-    padding-left: 5px;
 }
 #InputWrapperBorder {
     border: 2px solid #6498D4;

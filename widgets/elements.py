@@ -14,7 +14,7 @@ class ImputWrapper(QtWidgets.QFrame):
         self.border.move(0,10)
 
         layout = QtWidgets.QGridLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setContentsMargins(5, 0, 5, 0)
         layout.setSpacing(0)
         layout.setAlignment(QtCore.Qt.AlignmentFlag.AlignTop)
 
