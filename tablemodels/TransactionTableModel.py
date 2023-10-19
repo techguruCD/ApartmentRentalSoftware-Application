@@ -29,17 +29,19 @@ class TransactionTableModel(QtCore.QAbstractTableModel):
                     return self._data[row]['id']
                 case 1: # amount
                     return self._data[row]['amount']
-                case 2: # transaction type
+                case 2: # transaction category
+                    return self._data[row]['category']
+                case 3: # transaction type   income/expense
                     return self._data[row]['transaction_type']
-                case 3: # description
+                case 4: # description
                     return self._data[row]['description']
 
         # change colors
         if role == QtCore.Qt.ItemDataRole.BackgroundRole:
-            if index.row() % 2 != 0:
-                return QtGui.QColor(colors['table_color_1'])
+            if self._data[row]['transaction_type'] == 'income':
+                return QtGui.QColor(colors['green_normal'])
             else:
-                return QtGui.QColor(colors['table_color_2'])
+                return QtGui.QColor(colors['red_normal'])
 
     def headerData(self, section, orientation, role):
         if role == QtCore.Qt.DisplayRole:
@@ -50,28 +52,14 @@ class TransactionTableModel(QtCore.QAbstractTableModel):
                     case 1:
                         return tr('TransactionTableModel - Amount', 'Amount')
                     case 2:
-                        return tr('TransactionTableModel - Transaction type', 'Transaction type')
+                        return tr('TransactionTableModel - Category', 'Category')
                     case 3:
+                        return tr('TransactionTableModel - Transaction type', 'Transaction type')
+                    case 4:
                         return tr('TransactionTableModel - Description', 'Description')
         
             if orientation == QtCore.Qt.Vertical:
                 return str(section + 1)
-
-    def setData(self, index, value, role):
-        row = index.row()
-        column = index.column()
-        # if role == QtCore.Qt.ItemDataRole.CheckStateRole and column == 1:
-        #     if value == 2:
-        #         self._data[row]['paid'] = True
-        #         self.dataChanged.emit(index, index)
-        #     elif value == 0:
-        #         self._data[row]['paid'] = False
-        #         self.dataChanged.emit(index, index)
-            
-        #     return True
-
-        return False
-
 
     def rowCount(self, index):
         return len(self._data)

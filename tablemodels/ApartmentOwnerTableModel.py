@@ -57,22 +57,6 @@ class ApartmentOwnerTableModel(QtCore.QAbstractTableModel):
             if orientation == QtCore.Qt.Vertical:
                 return str(section + 1)
 
-    def setData(self, index, value, role):
-        row = index.row()
-        column = index.column()
-        # if role == QtCore.Qt.ItemDataRole.CheckStateRole and column == 1:
-        #     if value == 2:
-        #         self._data[row]['paid'] = True
-        #         self.dataChanged.emit(index, index)
-        #     elif value == 0:
-        #         self._data[row]['paid'] = False
-        #         self.dataChanged.emit(index, index)
-            
-        #     return True
-
-        return False
-
-
     def rowCount(self, index):
         return len(self._data)
 

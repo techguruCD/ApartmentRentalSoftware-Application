@@ -145,7 +145,14 @@
     border-radius: 5px;
 }
 
-#DialogButton {
+#Window {
+    background-color: #FFFFFF;
+}
+
+#DialogButton,
+#BlueButton,
+#LightBlueButton,
+#GreenButton {
     font-size: 16px;
     background-color: #6498D4;
     color:#FFFFFF;
@@ -153,12 +160,52 @@
     padding: 5px 10px;
     border-radius: 10px;
 }
+
+#DialogButton {
+    background-color: #6498D4;
+    border-color: #6498D4;
+}
 #DialogButton:hover {
-    border: 2px solid #597FAE;
+    border-color: #597FAE;
 }
 #DialogButton:pressed {
     background-color: #597FAE;
-    border: 2px solid #6498D4;
+    border-color: #6498D4;
+}
+
+#BlueButton {
+    background-color: #185499;
+    border-color: #185499;
+}
+#BlueButton:hover {
+    border-color: #2c70bd;
+}
+#BlueButton:pressed {
+    background-color: #2c70bd;
+    border-color: #185499;
+}
+
+#LightBlueButton {
+    background-color: #488cda;
+    border-color: #488cda;
+}
+#LightBlueButton:hover {
+    border-color: #63a7f5;
+}
+#LightBlueButton:pressed {
+    background-color: #63a7f5;
+    border-color: #488cda;
+}
+
+#GreenButton {
+    background-color: #45be78;
+    border-color: #45be78;
+}
+#GreenButton:hover {
+    border-color: #4ddd89;
+}
+#DialogText {
+    color: #6498D4;
 }
 
 #IconButton {

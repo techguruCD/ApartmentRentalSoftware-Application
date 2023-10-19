@@ -6,5 +6,8 @@ colors = {
 
     'primary_light': '#97B2DF',
     'primary_normal': '#6498D4',
-    'primary_dark': '#597FAE',   
+    'primary_dark': '#597FAE',
+
+    'green_normal': '#28a745',
+    'red_normal': '#dc3545'
 }
