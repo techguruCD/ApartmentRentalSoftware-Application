@@ -15,6 +15,7 @@ from PySide6.QtWidgets import (
     QPlainTextEdit,
     QTableView,
     QLabel,
+    QComboBox,
     QGridLayout,
     QVBoxLayout,
     QHBoxLayout,
@@ -61,6 +62,14 @@ class TenantListPage(CustomWindow):
         self.search = QLineEdit(self)
         self.search.setObjectName('Input')
         self.search.setPlaceholderText('🔍')
+        self.combo_status = QComboBox(self)
+        self.combo_status.setObjectName('Input')
+        self.combo_status.addItem('All')
+        self.combo_status.addItem('Active')
+        self.combo_status.addItem('Inactive')
+        layout_search = QHBoxLayout()
+        layout_search.addWidget(InputWrapper(tr('Widgets - Search', 'Search'), self.search))
+        layout_search.addWidget(InputWrapper(tr('Widgets - Status', 'Status'), self.combo_status))
 
         self.table_model = TenantTableModel([])
         self.table_view = QTableView(self)
@@ -96,9 +105,9 @@ class TenantListPage(CustomWindow):
         self.button_update_rental_fee = QPushButton(tr('Widgets - Update Rental Fee', 'Update Rental Fee'), self)
         self.button_update_rental_fee.setObjectName('BlueButton')
 
-        button_cancel = QPushButton(tr('Buttons - Cancel', 'Cancel'))
-        button_cancel.setObjectName('DialogButton')
-        button_cancel.clicked.connect(self.cancel)
+        # button_cancel = QPushButton(tr('Buttons - Cancel', 'Cancel'))
+        # button_cancel.setObjectName('DialogButton')
+        # button_cancel.clicked.connect(self.cancel)
 
         layout_control = QVBoxLayout()
         layout_control.addWidget(self.button_new_tenant)
@@ -110,12 +119,12 @@ class TenantListPage(CustomWindow):
         layout_control.addSpacerItem(QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding))
 
         layout.addLayout(layout_back, 0, 0, 1, 4)
-        layout.addWidget(InputWrapper(tr('Widgets - Search', 'Search'), self.search), 1, 0, 1, 3)
+        layout.addLayout(layout_search, 1, 0, 1, 3)
         layout.addWidget(self.table_view, 2, 0, 1, 3)
         layout.addWidget(self.button_previous, 3, 0)
         layout.addWidget(self.button_next, 3, 2)
         layout.addLayout(layout_control, 2, 3, 2, 1)
-        layout.addWidget(button_cancel, 4, 0, 1, 4)
+        # layout.addWidget(button_cancel, 4, 0, 1, 4)
 
         self.widget.setLayout(layout)
 
@@ -149,5 +158,5 @@ class TenantListPage(CustomWindow):
     def previous_page(self):
         self.update_data(final_url=self._previous_page)
 
-    def cancel(self):
-        self.SignalClose.emit()
+    # def cancel(self):
+    #     self.SignalClose.emit()
