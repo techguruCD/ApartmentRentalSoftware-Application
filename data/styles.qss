@@ -2,7 +2,7 @@
     #FFFFFF;
     #000000;
 
-    #97B2DF
+    #97B2DF;
     #6498D4;
     #597FAE;
 */
@@ -30,6 +30,14 @@
 }
 #Window {
     background-color: #FFFFFF;
+}
+#Frame {
+    border: 1px solid #6498D4;
+    border-radius: 5px;
+}
+
+#Label {
+    color: #97B2DF
 }
 
 
@@ -75,10 +83,6 @@
     border-right: 1px solid #597FAE;
     border-bottom: 1px solid #597FAE;
 }
-#Table QScrollArea {
-    background-color: transparent;
-    border: none;
-}
 #Table::indicator {
     border: 1px solid #597FAE;
 }
@@ -87,11 +91,30 @@
     image: url('data/check.svg');
 }
 
+#Checkbox {
+    font-size: 16px;
+    color: #000000;
+}
+#Checkbox::indicator {
+    border: 1px solid #6498D4;
+    border-radius: 10px;
+    width: 20px;
+    height: 20px;
+}
+#Checkbox::indicator:on{
+    background-color: #6498D4;
+}
+
 #Input {
-    border: none;
+    border: 1px solid #6498D4;
     background-color: transparent;
+    border-radius: 5px;
     color: #000000;
     font-size: 16px;
+}
+#Input:disabled {
+    color: #a5a5a5;
+    border: 1px solid #a5a5a5;
 }
 #Input::up-button {
     width: 20px;
@@ -103,6 +126,7 @@
     subcontrol-origin: margin;
     subcontrol-position: right bottom;
 }
+
 #InputWrapper {
     background-color: #FFFFFF;
 }
@@ -113,6 +137,7 @@
     padding: 0 5px;
 }
 #InputWrapper #Input {
+    border: none;
     margin-bottom: 5px;
 }
 #InputWrapperBorder {
@@ -135,13 +160,15 @@
     background-color: #597FAE;
     border: 2px solid #6498D4;
 }
-#DialogText {
-    color: #6498D4;
-}
 
 #IconButton {
     border: none;
     background-color: transparent;
+}
+
+QScrollArea {
+    background-color: transparent;
+    border: none;
 }
 
 QScrollBar:horizontal {
