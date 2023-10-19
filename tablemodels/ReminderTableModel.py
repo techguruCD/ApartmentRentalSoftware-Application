@@ -27,7 +27,7 @@ class ReminderTableModel(QtCore.QAbstractTableModel):
                 case 3: # text
                     return self._data[row]['text']
                 case 4: # apartment name
-                    return self._data[row]['apartment']['name']
+                    return self._data[row]['apartment']['name'] + ' ' + self._data[row]['apartment']['unique_identifier']
 
         # change colors
         if role == QtCore.Qt.ItemDataRole.BackgroundRole:

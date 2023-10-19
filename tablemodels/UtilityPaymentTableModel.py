@@ -35,7 +35,7 @@ class UtilityPaymentTableModel(QtCore.QAbstractTableModel):
                 case 4: # Tenant's first and last name
                     return self._data[row]['tenant']['first_name'] + ' ' + self._data[row]['tenant']['last_name']
                 case 5: # apartment name
-                    return self._data[row]['apartment']['name']
+                    return self._data[row]['apartment']['name'] + ' ' + self._data[row]['apartment']['unique_identifier']
         if role == QtCore.Qt.ItemDataRole.CheckStateRole:
             if index.column() == 1:
                 if self._data[row]['paid']:
