@@ -52,7 +52,8 @@ class InputWrapper(QtWidgets.QFrame):
         )
         self.setSizePolicy(
             QtWidgets.QSizePolicy.Policy.Minimum,
-            QtWidgets.QSizePolicy.Policy.Fixed
+            # QtWidgets.QSizePolicy.Policy.Fixed
+            QtWidgets.QSizePolicy.Policy.Expanding
         )
     
     def resizeEvent(self, event) -> None:
