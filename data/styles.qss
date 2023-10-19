@@ -10,6 +10,29 @@
 * {
     font-family: 'Open Sans';
 }
+
+#btn_showMinimized {
+    border-radius: 7px;
+    background-color: rgb(245, 191, 79);
+}
+#btn_showFullScreen {
+    border-radius: 7px;
+    background-color: rgb(98, 197, 84);
+}
+
+#btn_close {
+    border-radius: 7px;
+    background-color: rgb(237, 106, 94);
+}
+#Wrapper {
+    background-color: #FFFFFF;
+    border-radius: 15px;
+}
+#Window {
+    background-color: #FFFFFF;
+}
+
+
 #Table {
     background-color: #FFFFFF;
     border: 1px solid #597FAE;
@@ -97,10 +120,6 @@
     border-radius: 5px;
 }
 
-#Window {
-    background-color: #FFFFFF;
-}
-
 #DialogButton {
     font-size: 16px;
     background-color: #6498D4;
@@ -115,6 +134,9 @@
 #DialogButton:pressed {
     background-color: #597FAE;
     border: 2px solid #6498D4;
+}
+#DialogText {
+    color: #6498D4;
 }
 
 #IconButton {

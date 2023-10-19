@@ -10,6 +10,9 @@ class UtilityPaymentTableModel(QtCore.QAbstractTableModel):
     def __init__(self, data) -> None:
         super().__init__()
         self._data = data
+
+        for row in self._data:
+            row['changed'] = False
     
     def flags(self, index):
         flags = super().flags(index)
@@ -35,7 +38,7 @@ class UtilityPaymentTableModel(QtCore.QAbstractTableModel):
                 case 4: # Tenant's first and last name
                     return self._data[row]['tenant']['first_name'] + ' ' + self._data[row]['tenant']['last_name']
                 case 5: # apartment name
-                    return self._data[row]['apartment']['name']
+                    return self._data[row]['apartment']['name'] + ' ' + self._data[row]['apartment']['unique_identifier']
         if role == QtCore.Qt.ItemDataRole.CheckStateRole:
             if index.column() == 1:
                 if self._data[row]['paid']:
@@ -74,6 +77,8 @@ class UtilityPaymentTableModel(QtCore.QAbstractTableModel):
         row = index.row()
         column = index.column()
         if role == QtCore.Qt.ItemDataRole.CheckStateRole and column == 1:
+            self._data[row]['changed'] = True
+            
             if value == 2:
                 self._data[row]['paid'] = True
                 self.dataChanged.emit(index, index)
@@ -84,7 +89,6 @@ class UtilityPaymentTableModel(QtCore.QAbstractTableModel):
             return True
 
         return False
-
 
     def rowCount(self, index):
         return len(self._data)
