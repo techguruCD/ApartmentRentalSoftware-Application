@@ -69,11 +69,10 @@ class NamedDateTableModel(QtCore.QAbstractTableModel):
         if role == QtCore.Qt.ItemDataRole.TextAlignmentRole:
             return QtCore.Qt.AlignmentFlag.AlignCenter
 
-       
         match index.column():
             case 0: # button to delete:
                 if role == QtCore.Qt.ItemDataRole.DisplayRole:
-                    return ''
+                    return '⊖'
             case 1: # name
                 if role in (QtCore.Qt.ItemDataRole.DisplayRole, QtCore.Qt.ItemDataRole.EditRole):
                     return self._data[row]['name']
@@ -85,6 +84,10 @@ class NamedDateTableModel(QtCore.QAbstractTableModel):
                     if '+' in date_str:
                         date_str = date_str.split('+')[0]
                     return date_str
+        
+        if role == QtCore.Qt.ItemDataRole.ForegroundRole:
+            if index.column() == 0:
+                return QtGui.QColor('#FF0000')
         
         # change colors
         if role == QtCore.Qt.ItemDataRole.BackgroundRole:
