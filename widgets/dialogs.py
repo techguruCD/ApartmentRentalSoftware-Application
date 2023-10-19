@@ -16,7 +16,7 @@ def get_dialog_icon(icon_type: str) -> QtWidgets.QLabel:
 
     return label_icon
 
-class UtilityDialog(QtWidgets.QDialog):
+class UtilityBillsDialog(QtWidgets.QDialog):
     def __init__(self, electricity: float = 0, water: float = 0, taxes: float = 0) -> None:
         super().__init__()
 
@@ -104,10 +104,10 @@ class Dialog(QtWidgets.QDialog):
         btn_cancel.clicked.connect(self.reject)
 
         title = QtWidgets.QLabel(title, font=QtGui.QFont('Open Sans', 24, 600))
-        title.setObjectName('DialogText')
+        title.setObjectName('Label')
         title.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         text = QtWidgets.QLabel(text, font=QtGui.QFont('Open Sans', 18, 400))
-        text.setObjectName('DialogText')
+        text.setObjectName('Label')
         text.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
 
         layout.addWidget(get_dialog_icon(icon_type), 0, 2)
