@@ -5,8 +5,8 @@ from PySide6 import (
 )
 tr = QtCore.QCoreApplication.translate
 
-from pages.RentPaymentPage import (
-    RentPaymentPage
+from pages.ReminderPage import (
+    ReminderPage
 )
 import widgets.dialogs as dialogs
 
@@ -17,7 +17,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
         self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
 
-        central = RentPaymentPage()
+        central = ReminderPage()
         central.connect_control_signals(self)
         self.setCentralWidget(central)
 

@@ -9,7 +9,6 @@ from widgets.elements import InputWrapper, CustomWindow
 from widgets.dialogs import Dialog
 
 tr = QtCore.QCoreApplication.translate
-label_font = QtGui.QFont('Open Sans', 16, 400)
 
 class RentPaymentPage(CustomWindow):
     def __init__(self):
@@ -77,7 +76,7 @@ class RentPaymentPage(CustomWindow):
         self.widget.setLayout(layout)
 
     def table_click(self, index: QtCore.QModelIndex):
-        self.Signal.emit({'window': 'rental', 'id': self.table_model._data[index.row()]['id']})
+        self.Signal.emit({'window': 'rental', 'id': self.table_model._data[index.row()]['rent']['id']})
 
     def update_data(self, final_url: str = 0):
         search = self.search.text()
@@ -107,8 +106,8 @@ class RentPaymentPage(CustomWindow):
     
     def save(self):
         if not api.rent_payment_update(list(filter(lambda row: row['changed'], self.table_model._data))):
-            dialog = Dialog(tr('RentPaymentPage - Error title', 'Update error'),
-                            tr('RentPaymentPage - Error text', 'An error occurred while updating data!'),
+            dialog = Dialog(tr('Dialog - Error title', 'Update error'),
+                            tr('Dialog - Error text', 'An error occurred while updating data!'),
                             'error')
             if dialog.is_accepted:
                 self.SignalClose.emit()
