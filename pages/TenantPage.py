@@ -97,7 +97,8 @@ class TenantPage(CustomWindow):
             'phone': self.phone.text(),
             'mail': self.mail.text(),
             'parent_address': self.parent_address.text(),
-            'parent_phone': self.parent_phone.text()
+            'parent_phone': self.parent_phone.text(),
+            'note': self.note.toPlainText()
         }
         if not api.tenant_save(data):
             dialog = Dialog(tr('TenantPage - Error title', 'Save error'),
