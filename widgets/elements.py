@@ -59,11 +59,11 @@ class InputWrapper(QtWidgets.QFrame):
         self.border.resize(self.width(), self.height() - 10)
 
 class CustomWindow(QtWidgets.QWidget):
-    SignalShowMinimized = QtCore.Signal(bool)
-    SignalShowNormal = QtCore.Signal(bool)
-    SignalShowMaximized = QtCore.Signal(bool)
-    SignalShowFullScreen = QtCore.Signal(bool)
-    SignalClose = QtCore.Signal(bool)
+    SignalShowMinimized = QtCore.Signal()
+    SignalShowNormal = QtCore.Signal()
+    SignalShowMaximized = QtCore.Signal()
+    SignalShowFullScreen = QtCore.Signal()
+    SignalClose = QtCore.Signal()
 
     Signal = QtCore.Signal(dict)
 
@@ -183,28 +183,28 @@ class CustomWindow(QtWidgets.QWidget):
         self.setMinimumWidth(self.sub_control_buttons_frame.width())
 
     def __click_close(self):
-        self.SignalClose.emit(True)
+        self.SignalClose.emit()
         self.close()
 
     def __click_showFullScreen(self):
         if self.isFullScreen():
-            self.SignalShowNormal.emit(True)
+            self.SignalShowNormal.emit()
             self.showNormal()
         else:
-            self.SignalShowFullScreen.emit(True)
+            self.SignalShowFullScreen.emit()
             self.showFullScreen()
 
     def __click_showMaximized(self, event: QtGui.QMouseEvent):
         event.ignore()
         if self.isMaximized():
-            self.SignalShowNormal.emit(True)
+            self.SignalShowNormal.emit()
             self.showNormal()
         else:
-            self.SignalShowMaximized.emit(True)
+            self.SignalShowMaximized.emit()
             self.showMaximized()
 
     def __click_showMinimized(self):
-        self.SignalShowMinimized.emit(True)
+        self.SignalShowMinimized.emit()
         self.showMinimized()
 
     def resizeEvent(self, event: QtGui.QResizeEvent) -> None:
@@ -231,3 +231,4 @@ class CustomWindow(QtWidgets.QWidget):
 
     def mouseReleaseEvent(self, event: QtGui.QMouseEvent) -> None:
         self.pressing = False
+
