@@ -17,7 +17,7 @@ class RentPaymentTableModel(QtCore.QAbstractTableModel):
     def flags(self, index):
         flags = super().flags(index)
         if index.column() == 1:
-            flags |= QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsUserCheckable
+            flags |= QtCore.Qt.ItemFlag.ItemIsEnabled | QtCore.Qt.ItemFlag.ItemIsUserCheckable
         return flags
 
     def data(self, index, role):
@@ -39,6 +39,7 @@ class RentPaymentTableModel(QtCore.QAbstractTableModel):
                     return self._data[row]['tenant']['first_name'] + ' ' + self._data[row]['tenant']['last_name']
                 case 5: # apartment name
                     return self._data[row]['apartment']['name'] + ' ' + self._data[row]['apartment']['unique_identifier']
+        
         if role == QtCore.Qt.ItemDataRole.CheckStateRole:
             if index.column() == 1:
                 if self._data[row]['paid']:
@@ -55,7 +56,7 @@ class RentPaymentTableModel(QtCore.QAbstractTableModel):
 
     def headerData(self, section, orientation, role):
         if role == QtCore.Qt.DisplayRole:
-            if orientation == QtCore.Qt.Horizontal:
+            if orientation == QtCore.Qt.Orientation.Horizontal:
                 match section:
                     case 0:
                         return 'id'
@@ -70,7 +71,7 @@ class RentPaymentTableModel(QtCore.QAbstractTableModel):
                     case 5:
                         return tr('RentPaymentTableModel - Apartment name', 'Apartment name')
         
-            if orientation == QtCore.Qt.Vertical:
+            if orientation == QtCore.Qt.Orientation.Vertical:
                 return str(section + 1)
 
     def setData(self, index, value, role):

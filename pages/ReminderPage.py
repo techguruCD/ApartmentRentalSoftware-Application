@@ -3,8 +3,8 @@ from PySide6 import(
     QtGui,
     QtWidgets
 )
-import api.UtilityPaymentApi as api
 from widgets.elements import InputWrapper, CustomWindow
+from tablemodels.NamedDateTableModel import NamedDateTableModel, DateEditDelegate, LineEditDelegate
 import datetime
 
 tr = QtCore.QCoreApplication.translate
@@ -65,5 +65,21 @@ class ReminderPage(CustomWindow):
         reminder_information_layout.addWidget(InputWrapper(tr('ReminderPage - Text', 'Text'), self.reminder_text), 1, 1, 1, 2)
         reminder_information_layout.addWidget(InputWrapper(tr('ReminderPage - Creation date', 'Creation date'), self.creation_date), 1, 3)
 
+        self.table_model = NamedDateTableModel([{'name': '1', 'date': '2023-10-19T10:12:00Z'}, {'name': '2', 'date': '2023-10-19T15:17:00Z'}])
+        self.table_view = QtWidgets.QTableView()
+        self.table_view.setObjectName('Table')
+        line_edit_delegate = LineEditDelegate()
+        date_edit_delegate = DateEditDelegate()
+        
+        self.table_view.setModel(self.table_model)
+        self.table_view.setItemDelegateForColumn(1, line_edit_delegate)
+        self.table_view.setItemDelegateForColumn(2, date_edit_delegate)
+        
+
+        # self.table_view.setEditTriggers(QtWidgets.QTableView.EditTrigger.NoEditTriggers)
+        # self.table_view.setSelectionMode(QtWidgets.QTableView.SelectionMode.NoSelection)
+
 
         layout.addWidget(reminder_information_frame, 0, 0, 1, 9)
+        layout.addWidget(self.table_view, 1, 0, 1, 9)
+
