@@ -174,7 +174,7 @@ class ApartmentPage(CustomWindow):
         layout.addWidget(self.table_view, 2, 0, 1, 3)
         layout.addWidget(self.button_previous, 3, 0)
         layout.addWidget(self.button_next, 3, 2)
-        layout.addLayout(layout_control, 2, 3, 2, 1)
+        layout.addLayout(layout_control, 1, 3, 3, 1)
         layout.addWidget(self.panel_detail, 4, 0, 1, 4)
         layout.addLayout(layout_save, 5, 0, 1, 4)
         # layout.addWidget(self.panel_detail, 2, 4, 2, 1)
