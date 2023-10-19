@@ -133,7 +133,6 @@ class TenantListPage(CustomWindow):
 
     def update_data(self, final_url: str = 0):
         search = self.search.text()
-        search = 'aaa'
 
         success, data = api.tenant_list(search, final_url)
         if success:
