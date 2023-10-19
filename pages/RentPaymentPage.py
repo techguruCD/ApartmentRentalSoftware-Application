@@ -6,6 +6,7 @@ from PySide6 import(
 from tablemodels.RentPaymentTableModel import RentPaymentTableModel
 import api.RentPaymentApi as api
 from widgets.elements import InputWrapper, CustomWindow
+from widgets.dialogs import Dialog
 
 tr = QtCore.QCoreApplication.translate
 label_font = QtGui.QFont('Open Sans', 16, 400)
@@ -19,7 +20,9 @@ class RentPaymentPage(CustomWindow):
         self._previous_page = None
 
         self.__init_UI()
+
         self.update_data()
+        self.table_view.resizeColumnsToContents()
 
         self.show()
     
@@ -55,15 +58,26 @@ class RentPaymentPage(CustomWindow):
         self.button_previous.clicked.connect(self.previous_page)
         self.button_previous.setDisabled(True)
 
-        layout.addWidget(InputWrapper(tr('Widgets - Search', 'Search'), self.search), 0, 0, 1, 3)
-        layout.addWidget(self.table_view, 1, 0, 1, 3)
+        button_save = QtWidgets.QPushButton(tr('Buttons - Save', 'Save'))
+        button_save.setObjectName('DialogButton')
+        button_save.clicked.connect(self.save)
+
+        button_cancel = QtWidgets.QPushButton(tr('Buttons - Cancel', 'Cancel'))
+        button_cancel.setObjectName('DialogButton')
+        button_cancel.clicked.connect(self.cancel)
+
+        layout.addWidget(InputWrapper(tr('Widgets - Search', 'Search'), self.search), 0, 0, 1, 5)
+        layout.addWidget(self.table_view, 1, 0, 1, 5)
         layout.addWidget(self.button_previous, 2, 0)
-        layout.addWidget(self.button_next, 2, 2)
+        layout.addWidget(self.button_next, 2, 4)
+
+        layout.addWidget(button_save, 3, 0, 1, 2)
+        layout.addWidget(button_cancel, 3, 3, 1, 2)
 
         self.widget.setLayout(layout)
 
     def table_click(self, index: QtCore.QModelIndex):
-        pass
+        self.Signal.emit({'window': 'rental', 'id': self.table_model._data[index.row()]['id']})
 
     def update_data(self, final_url: str = 0):
         search = self.search.text()
@@ -71,6 +85,7 @@ class RentPaymentPage(CustomWindow):
         success, data = api.rent_payment_list(search, final_url)
         if success:
             self.table_model = RentPaymentTableModel(data['results'])
+            self.table_view.setModel(self.table_model)
 
             if data['previous'] is None:
                 self.button_previous.setDisabled(True)
@@ -89,3 +104,14 @@ class RentPaymentPage(CustomWindow):
 
     def previous_page(self):
         self.update_data(final_url=self._previous_page)
+    
+    def save(self):
+        if not api.rent_payment_update(list(filter(lambda row: row['changed'], self.table_model._data))):
+            dialog = Dialog(tr('RentPaymentPage - Error title', 'Update error'),
+                            tr('RentPaymentPage - Error text', 'An error occurred while updating data!'),
+                            'error')
+            if dialog.is_accepted:
+                self.SignalClose.emit()
+
+    def cancel(self):
+        self.SignalClose.emit()
