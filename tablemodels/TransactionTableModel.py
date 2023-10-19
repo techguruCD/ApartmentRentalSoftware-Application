@@ -36,8 +36,16 @@ class TransactionTableModel(QtCore.QAbstractTableModel):
                 case 4: # description
                     return self._data[row]['description']
 
+
         # change colors
         if role == QtCore.Qt.ItemDataRole.BackgroundRole:
+            if index.row() % 2 != 0:
+                return QtGui.QColor(colors['table_color_1'])
+            else:
+                return QtGui.QColor(colors['table_color_2'])
+            
+        # text color
+        if role == QtCore.Qt.ItemDataRole.ForegroundRole:
             if self._data[row]['transaction_type'] == 'income':
                 return QtGui.QColor(colors['green_normal'])
             else:
