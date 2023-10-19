@@ -225,8 +225,8 @@ class ApartmentPage(CustomWindow):
         #     'note': self.note.toPlainText()
         # }
         if not ApartmentApi.apartment_save(None):
-            dialog = Dialog(tr('TenantPage - Error title', 'Save error'),
-                            tr('TenantPage - Error text', 'An error occurred while updating data!'),
+            dialog = Dialog(tr('ApartmentPage - Error title', 'Save error'),
+                            tr('ApartmentPage - Error text', 'An error occurred while updating data!'),
                             'error')
             if dialog.is_accepted:
                 self.SignalClose.emit()
