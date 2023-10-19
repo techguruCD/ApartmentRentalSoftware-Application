@@ -10,6 +10,9 @@ class RentPaymentTableModel(QtCore.QAbstractTableModel):
     def __init__(self, data) -> None:
         super().__init__()
         self._data = data
+
+        for row in self._data:
+            row['changed'] = False
     
     def flags(self, index):
         flags = super().flags(index)
@@ -74,6 +77,8 @@ class RentPaymentTableModel(QtCore.QAbstractTableModel):
         row = index.row()
         column = index.column()
         if role == QtCore.Qt.ItemDataRole.CheckStateRole and column == 1:
+            self._data[row]['changed'] = True
+            
             if value == 2:
                 self._data[row]['paid'] = True
                 self.dataChanged.emit(index, index)
@@ -84,7 +89,6 @@ class RentPaymentTableModel(QtCore.QAbstractTableModel):
             return True
 
         return False
-
 
     def rowCount(self, index):
         return len(self._data)
