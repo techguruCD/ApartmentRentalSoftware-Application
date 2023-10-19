@@ -4,23 +4,39 @@ from PySide6 import (
     QtWidgets
 )
 tr = QtCore.QCoreApplication.translate
-from tablemodels.RentPaymentTableModel import (
-    RentPaymentTableModel
-)
-import widgets.dialogs as dialogs
+
 from pages.RentPaymentPage import (
     RentPaymentPage
 )
+import widgets.dialogs as dialogs
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self) -> None:
         super().__init__()
-        self.setCentralWidget(RentPaymentPage())
+                
+        self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
+        self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
+
+        central = RentPaymentPage()
+        central.connect_control_signals(self)
+        self.setCentralWidget(central)
 
         self.show()
 
+def addFont(file_name):
+    with open(file_name, 'rb') as file:
+        font = file.read()
+        QtGui.QFontDatabase.addApplicationFontFromData(font)
+
 if __name__ == '__main__':
     app = QtWidgets.QApplication()
+
+    addFont('data/Open_Sans/OpenSans-ExtraBold.ttf')
+    addFont('data/Open_Sans/OpenSans-Bold.ttf')
+    addFont('data/Open_Sans/OpenSans-SemiBold.ttf')
+    addFont('data/Open_Sans/OpenSans-Medium.ttf')
+    addFont('data/Open_Sans/OpenSans-Regular.ttf')
+    addFont('data/Open_Sans/OpenSans-Light.ttf')
 
     styles = open("data/styles.qss", 'r').read()
     app.setStyleSheet(styles)

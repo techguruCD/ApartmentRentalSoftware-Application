@@ -3,7 +3,7 @@ from PySide6 import(
     QtGui,
     QtWidgets
 )
-from widgets.elements import InputWrapper
+from widgets.elements import InputWrapper, CustomWindow
 
 tr = QtCore.QCoreApplication.translate
 label_font = QtGui.QFont('Open Sans', 16, 400)
@@ -12,7 +12,8 @@ class UtilityDialog(QtWidgets.QDialog):
     def __init__(self, electricity: float = 0, water: float = 0, taxes: float = 0) -> None:
         super().__init__()
 
-        self.setWindowTitle(tr('UtilityDialog - Title', 'Enter utility payment details'))
+        self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
+        self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
 
         self.is_accepted = False
 
@@ -45,7 +46,15 @@ class UtilityDialog(QtWidgets.QDialog):
         layout.addWidget(button_accept, 3, 0)
         layout.addWidget(button_reject, 3, 1)
 
-        self.setLayout(layout)
+        self.wrapper = CustomWindow()
+        self.wrapper.setWindowTitle(tr('UtilityDialog - Title', 'Enter utility payment details'))
+        self.wrapper.connect_control_signals(self)
+        self.wrapper.widget.setLayout(layout)
+
+        main_layout = QtWidgets.QHBoxLayout()
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.addWidget(self.wrapper)
+        self.setLayout(main_layout)
 
         self.exec()
 
