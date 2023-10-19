@@ -3,18 +3,18 @@ from PySide6 import(
     QtGui,
     QtWidgets
 )
-from tablemodels.RentPaymentTableModel import RentPaymentTableModel
-import api.RentPaymentApi as api
+from tablemodels.UtilityPaymentTableModel import UtilityPaymentTableModel
+import api.UtilityPaymentApi as api
 from widgets.elements import InputWrapper, CustomWindow
-from widgets.dialogs import Dialog
+from widgets.dialogs import Dialog, UtilityBillsDialog
 
 tr = QtCore.QCoreApplication.translate
 
-class RentPaymentPage(CustomWindow):
+class UtilityPaymentPage(CustomWindow):
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle(tr('RentPaymentPage - Title', 'Rent payments'))
+        self.setWindowTitle(tr('UtilityPaymentPage - Title', 'Utility payments'))
         self._next_page = None
         self._previous_page = None
 
@@ -36,7 +36,7 @@ class RentPaymentPage(CustomWindow):
         self.search.setObjectName('Input')
         self.search.setPlaceholderText('🔍')
 
-        self.table_model = RentPaymentTableModel([])
+        self.table_model = UtilityPaymentTableModel([])
         self.table_view = QtWidgets.QTableView()
         self.table_view.setObjectName('Table')
         self.table_view.setModel(self.table_model)
@@ -76,14 +76,20 @@ class RentPaymentPage(CustomWindow):
         self.widget.setLayout(layout)
 
     def table_click(self, index: QtCore.QModelIndex):
-        self.Signal.emit({'window': 'rental', 'id': self.table_model._data[index.row()]['rent']['id']})
+        if index.column() == 3:
+            dialog = UtilityBillsDialog(**self.table_model._data[index.row()]['utility_bills'])
+            if dialog.is_accepted:
+                utility_bills = dialog()
+                self.table_model._data[index.row()]['utility_bills'] = utility_bills
+                self.table_model._data[index.row()]['amount'] = sum(utility_bills.values())
+                self.table_model._data[index.row()]['changed'] = True
 
     def update_data(self, final_url: str = 0):
         search = self.search.text()
 
-        success, data = api.rent_payment_list(search, final_url)
+        success, data = api.utility_payment_list(search, final_url)
         if success:
-            self.table_model = RentPaymentTableModel(data['results'])
+            self.table_model = UtilityPaymentTableModel(data['results'])
             self.table_view.setModel(self.table_model)
 
             if data['previous'] is None:
@@ -105,7 +111,7 @@ class RentPaymentPage(CustomWindow):
         self.update_data(final_url=self._previous_page)
     
     def save(self):
-        if not api.rent_payment_update(list(filter(lambda row: row['changed'], self.table_model._data))):
+        if not api.utility_payment_update(list(filter(lambda row: row['changed'], self.table_model._data))):
             dialog = Dialog(tr('Dialog - Error title', 'Update error'),
                             tr('Dialog - Error text', 'An error occurred while updating data!'),
                             'error')
