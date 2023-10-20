@@ -233,3 +233,37 @@ class CustomWindow(QtWidgets.QWidget):
     def mouseReleaseEvent(self, event: QtGui.QMouseEvent) -> None:
         self.pressing = False
 
+class NamedHObjectLayout(QtWidgets.QHBoxLayout):
+    def __init__(self,
+                 name: str,
+                 object,
+                 direction: str ='right',
+                 font: QtGui.QFont = None,
+                 text_align: str = 'left',
+                 spacing: int = 10,
+                 ):
+        QtWidgets.QHBoxLayout.__init__(self)
+        self.layout().setSpacing(spacing)
+        label = QtWidgets.QLabel(name)
+        label.setObjectName('Label')
+        if font is not None:
+            label.setFont(font)
+
+        if text_align == 'left':
+            label.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeft)
+        elif text_align == 'center':
+            label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        elif text_align == 'Hcenter':
+            label.setAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter)
+        elif text_align == 'Vcenter':
+            label.setAlignment(QtCore.Qt.AlignmentFlag.AlignVCenter)
+        elif text_align == 'right':
+            label.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
+
+        if direction == 'right':
+            self.layout().addWidget(label)
+            self.layout().addWidget(object)
+        elif direction == 'left':
+            self.layout().addWidget(object)
+            self.layout().addWidget(label)
+     

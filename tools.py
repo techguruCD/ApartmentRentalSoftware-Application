@@ -1,3 +1,4 @@
+from math import ceil
 import datetime
 
 def get_utc_offset():
@@ -26,3 +27,6 @@ def calculate_date_with_offset(date: str):
     
     return date
 
+
+def total_pages(total_rows: int, rows_per_page: int) -> int:
+    return ceil(total_rows / rows_per_page)
