@@ -33,10 +33,10 @@ import datetime
 
 tr = QCoreApplication.translate
 # Start date!, End date!, Rent price per month!, Are utilities included!, Property tax! [For the year], Tenant!, Apartment!, Note [text field]
-class RentalPage(CustomWindow):
+class LeaseContractPage(CustomWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle(tr('RentalPage - Title', 'Rental'))
+        self.setWindowTitle(tr('LeaseContractPage - Title', 'Rental'))
         self._next_page_tenant = None
         self._previous_page_tenant = None
 
@@ -216,8 +216,8 @@ class RentalPage(CustomWindow):
         #     'note': self.note.toPlainText()
         # }
         if not RentalApi.rental_save(None):
-            dialog = Dialog(tr('RentalPage - Error title', 'Save error'),
-                            tr('RentalPage - Error text', 'An error occurred while updating data!'),
+            dialog = Dialog(tr('LeaseContractPage - Error title', 'Save error'),
+                            tr('LeaseContractPage - Error text', 'An error occurred while updating data!'),
                             'error')
             if dialog.is_accepted:
                 self.SignalClose.emit()
