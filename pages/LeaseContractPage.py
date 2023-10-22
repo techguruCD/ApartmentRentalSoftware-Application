@@ -6,10 +6,12 @@ from PySide6.QtCore import (
     QDate
 )
 from PySide6.QtGui import (
-    QIcon
+    QIcon,
+    QFont
 )
 from PySide6.QtWidgets import (
     QWidget,
+    QScrollArea,
     QFrame,
     QLineEdit,
     QPlainTextEdit,
@@ -36,7 +38,8 @@ tr = QCoreApplication.translate
 class LeaseContractPage(CustomWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle(tr('LeaseContractPage - Title', 'Rental'))
+        self.setWindowTitle(tr('LeaseContractPage - Title', 'Lease Contract'))
+        
         self._next_page_tenant = None
         self._previous_page_tenant = None
 
@@ -92,11 +95,14 @@ class LeaseContractPage(CustomWindow):
         self.input_wrapper_apartment = InputWrapper(tr('Widgets - Apartment', 'Apartment'), self.apartment)
         self.input_wrapper_apartment.hide()
 
-        # panel_tenant start
-        self.panel_tenant = QWidget(self)
+        # tenant_frame start
+        self.tenant_frame = QFrame(self)
+        self.tenant_frame.setObjectName('Frame')
         layout_tenant = QGridLayout()
-        layout_tenant.setContentsMargins(0, 0, 0, 0)
         layout_tenant.setSpacing(20)
+
+        label = QLabel(tr('LeaseContractPage - Tenant label', 'Tenant'), font=QFont('Open Sans', 24, 600))
+        label.setObjectName('Label')
 
         self.search_tenant = QLineEdit(self)
         self.search_tenant.setObjectName('Input')
@@ -121,19 +127,23 @@ class LeaseContractPage(CustomWindow):
         button_previous_tenant.clicked.connect(self.next_page_tenant)
         button_previous_tenant.setDisabled(True)
 
-        layout_tenant.addWidget(InputWrapper(tr('Widgets - Tenant Search', 'Tenant Search'), self.search_tenant), 0, 0, 1, 3)
-        layout_tenant.addWidget(self.table_view_tenant, 1, 0, 1, 3)
-        layout_tenant.addWidget(button_previous_tenant, 2, 0, 1, 1)
-        layout_tenant.addWidget(button_next_tenant, 2, 2, 1, 1)
+        layout_tenant.addWidget(label, 0, 0, 1, 3)
+        layout_tenant.addWidget(InputWrapper(tr('Widgets - Search', 'Search'), self.search_tenant), 1, 0, 1, 3)
+        layout_tenant.addWidget(self.table_view_tenant, 2, 0, 1, 3)
+        layout_tenant.addWidget(button_previous_tenant, 3, 0, 1, 1)
+        layout_tenant.addWidget(button_next_tenant, 3, 2, 1, 1)
 
-        self.panel_tenant.setLayout(layout_tenant)
-        # panel_tenant end
+        self.tenant_frame.setLayout(layout_tenant)
+        # tenant_frame end
 
-        # panel_apartment start
-        self.panel_apartment = QWidget(self)
+        # apartment_frame start
+        self.apartment_frame = QFrame(self)
+        self.apartment_frame.setObjectName('Frame')
         layout_apartment = QGridLayout()
-        layout_apartment.setContentsMargins(0, 0, 0, 0)
         layout_apartment.setSpacing(20)
+
+        label = QLabel(tr('LeaseContractPage - Apartment label', 'Apartment'), font=QFont('Open Sans', 24, 600))
+        label.setObjectName('Label')
 
         self.search_apartment = QLineEdit(self)
         self.search_apartment.setObjectName('Input')
@@ -158,13 +168,14 @@ class LeaseContractPage(CustomWindow):
         button_previous_apartment.clicked.connect(self.next_page_apartment)
         button_previous_apartment.setDisabled(True)
 
-        layout_apartment.addWidget(InputWrapper(tr('Widgets - Apartment Search', 'Apartment Search'), self.search_apartment), 0, 0, 1, 3)
-        layout_apartment.addWidget(self.table_view_apartment, 1, 0, 1, 3)
-        layout_apartment.addWidget(button_previous_apartment, 2, 0, 1, 1)
-        layout_apartment.addWidget(button_next_apartment, 2, 2, 1, 1)
+        layout_apartment.addWidget(label, 0, 0, 1, 3)
+        layout_apartment.addWidget(InputWrapper(tr('Widgets - Search', 'Search'), self.search_apartment), 1, 0, 1, 3)
+        layout_apartment.addWidget(self.table_view_apartment, 2, 0, 1, 3)
+        layout_apartment.addWidget(button_previous_apartment, 3, 0, 1, 1)
+        layout_apartment.addWidget(button_next_apartment, 3, 2, 1, 1)
 
-        self.panel_apartment.setLayout(layout_apartment)
-        # panel_apartment end
+        self.apartment_frame.setLayout(layout_apartment)
+        # apartment_frame end
         
         self.note = QPlainTextEdit(self)
         self.note.setObjectName('Input')
@@ -184,14 +195,25 @@ class LeaseContractPage(CustomWindow):
         layout.addWidget(InputWrapper(tr('Widgets - Property Tax For Year', 'Property Tax For Year'), self.property_tax_year), 3, 0, 1, 2)
         layout.addWidget(self.input_wrapper_tenant, 4, 0, 1, 1)
         layout.addWidget(self.input_wrapper_apartment, 4, 1, 1, 1)
-        layout.addWidget(self.panel_tenant, 5, 0, 1, 1)
-        layout.addWidget(self.panel_apartment, 5, 1, 1, 1)
-        layout.addWidget(InputWrapper(tr('Widgets - Note', 'Note'), self.note), 6, 0, 1, 2)
+        layout.addWidget(self.tenant_frame, 5, 0, 1, 2)
+        layout.addWidget(self.apartment_frame, 6, 0, 1, 2)
+        layout.addWidget(InputWrapper(tr('Widgets - Note', 'Note'), self.note), 7, 0, 1, 2)
 
-        layout.addWidget(self.button_save, 7, 0, 1, 1)
-        layout.addWidget(self.button_cancel, 7, 1, 1, 1)
+        layout.addWidget(self.button_save, 8, 0, 1, 1)
+        layout.addWidget(self.button_cancel, 8, 1, 1, 1)
+        
+        scroll_widget = QWidget(self)
+        scroll_widget.setObjectName('Window')
+        scroll_widget.setLayout(layout)
 
-        self.widget.setLayout(layout)
+        scroll = QScrollArea()
+        scroll.setWidget(scroll_widget)
+        scroll.setWidgetResizable(True)
+
+        scroll_layout = QVBoxLayout()
+        scroll_layout.addWidget(scroll)
+
+        self.widget.setLayout(scroll_layout)
 
     def next_page_tenant(self):
         self.update_data(final_url=self._next_page_tenant)
