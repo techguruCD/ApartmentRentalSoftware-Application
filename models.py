@@ -110,7 +110,8 @@ class Reminder(BaseModel):
     email_subject = CharField(max_length=255, default='', null=False)
 
     lease_contract = ForeignKeyField(LeaseContract, backref='reminders', null=False, on_delete='CASCADE')
-    dates = ManyToManyField(NamedDate, backref='included_in_reminders', null=True)
+    # dates = ManyToManyField(NamedDate, backref='included_in_reminders', null=True)
+    dates = ManyToManyField(NamedDate, backref='included_in_reminders')
 
 class Task(BaseModel):
     id = IntegerField(primary_key=True)
@@ -123,8 +124,10 @@ class Task(BaseModel):
     note = TextField(null=False, default='')
 
     lease_contract = ForeignKeyField(LeaseContract, backref='tasks', null=False, on_delete='CASCADE')
-    dates = ManyToManyField(NamedDate, backref='included_in_tasks', null=True)
-    actions = ManyToManyField(CellAction, backref='included_in_tasks', null=True)
+    # dates = ManyToManyField(NamedDate, backref='included_in_tasks', null=True)
+    # actions = ManyToManyField(CellAction, backref='included_in_tasks', null=True)
+    dates = ManyToManyField(NamedDate, backref='included_in_tasks')
+    actions = ManyToManyField(CellAction, backref='included_in_tasks')
 
 def create_tables():
     with database:
