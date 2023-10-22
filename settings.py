@@ -11,3 +11,14 @@ colors = {
     'green_normal': '#28a745',
     'red_normal': '#dc3545'
 }
+
+email_subjects = [
+    'subject_1',
+    'subject_2',
+    'subject_3',
+    'subject_4',
+    'subject_5',
+]
+
+PAGINATION_PAGE_SIZE = 100
+SEARCH_DELIMETER = ','
