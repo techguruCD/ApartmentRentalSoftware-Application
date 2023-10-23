@@ -40,7 +40,7 @@ class TenantListPage(CustomWindow):
         self.__init_UI()
 
         self.update_data()
-        self.table_view.resizeColumnsToContents()
+        # self.table_view.resizeColumnsToContents()
 
     def __init_UI(self):
         self.setObjectName("Window")
@@ -131,7 +131,7 @@ class TenantListPage(CustomWindow):
     def table_click(self, index: QModelIndex):
         self.Signal.emit({'window': 'tenantList', 'id': self.table_model._data[index.row()]['id']})
 
-    def update_data(self, final_url: str = 0):
+    def update_data(self, final_url: str = '1\n'):
         search = self.search.text()
 
         success, data = api.tenant_list(search, final_url)
