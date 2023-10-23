@@ -2,3 +2,4 @@
 /PySide_Widgets
 __pycache__
 /venv
+database.sqlite3
