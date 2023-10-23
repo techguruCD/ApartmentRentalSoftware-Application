@@ -26,7 +26,7 @@ from PySide6.QtWidgets import (
     QSizePolicy
 )
 
-# from api import ApartmentApi, TransactionApi
+from api import ApartmentApi, TransactionApi
 from widgets.elements import InputWrapper, CustomWindow
 from widgets.dialogs import Dialog
 from tablemodels.TransactionTableModel import TransactionTableModel
@@ -289,18 +289,28 @@ class ApartmentPage(CustomWindow):
         self
 
     def save(self):
-        # data = {
-        #     'first_name': self.first_name.text(),
-        #     'last_name': self.last_name.text(),
-        #     'phone': self.phone.text(),
-        #     'mail': self.mail.text(),
-        #     'parent_address': self.parent_address.text(),
-        #     'parent_phone': self.parent_phone.text(),
-        #     'note': self.note.toPlainText()
-        # }
-        if not ApartmentApi.apartment_save(None):
+        data = {
+            'unique_identifier': self.identifier.text(),
+            'name': self.name.text(),
+            'address': self.address.text(),
+            'city': self.city.text(),
+            'rooms': self.rooms.text(),
+            'apartment_area': self.area.text(),
+            'floor': self.floor.text(),
+            'beds': self.beds.text(),
+            'owner': self.owner.text(),
+            'note': self.note.toPlainText()
+        }
+        success, new_apartment = ApartmentApi.create_apartment(data)
+        if not success:
             dialog = Dialog(tr('ApartmentPage - Error title', 'Save error'),
                             tr('ApartmentPage - Error text', 'An error occurred while updating data!'),
+                            'error')
+            # if dialog.is_accepted:
+            #     self.SignalClose.emit()
+        else:
+            dialog = Dialog(tr('ApartmentPage - Success title', 'Save success'),
+                            tr('ApartmentPage - Success text', 'Save Success'),
                             'error')
             if dialog.is_accepted:
                 self.SignalClose.emit()
