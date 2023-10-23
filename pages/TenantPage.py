@@ -125,7 +125,14 @@ class TenantPage(CustomWindow):
     def __load_tenant(self):
         success, tenant = api.get_tenant(self.__id)
         if success:
-            print('yes')
+            print(tenant)
+            self.first_name.setText(tenant['first_name'])
+            self.last_name.setText(tenant['last_name'])
+            self.phone.setText(tenant['phone'])
+            self.email.setText(tenant['email'])
+            self.parents_address.setText(tenant['parents_address'])
+            self.parents_phone.setText(tenant['parents_phone'])
+            self.note.setPlainText(tenant['note'])
         else:
             Dialog(tr('TenantPage - Error title', 'Save error'),
                 tr('TenantPage - Error text', 'An error occurred while load data!'),
