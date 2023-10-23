@@ -3,18 +3,20 @@ from PySide6 import(
     QtGui,
     QtWidgets
 )
-from tablemodels.UtilityPaymentTableModel import UtilityPaymentTableModel
-import api.UtilityPaymentApi as api
+from tablemodels.UtilityBillsPaymentsTableModel import UtilityBillsPaymentsTableModel
 from widgets.elements import InputWrapper, CustomWindow
 from widgets.dialogs import Dialog, UtilityBillsDialog
+from api import (
+    TransactionApi
+)
 
 tr = QtCore.QCoreApplication.translate
 
-class UtilityPaymentPage(CustomWindow):
+class UtilityBillsPaymentsPage(CustomWindow):
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle(tr('UtilityPaymentPage - Title', 'Utility payments'))
+        self.setWindowTitle(tr('UtilityBillsPaymentsPage - Title', 'Utility bills payments'))
         self._next_page = None
         self._previous_page = None
 
@@ -35,8 +37,9 @@ class UtilityPaymentPage(CustomWindow):
         self.search = QtWidgets.QLineEdit()
         self.search.setObjectName('Input')
         self.search.setPlaceholderText('🔍')
+        self.search.textChanged.connect(lambda _: self.update_data())
 
-        self.table_model = UtilityPaymentTableModel([])
+        self.table_model = UtilityBillsPaymentsTableModel([])
         self.table_view = QtWidgets.QTableView()
         self.table_view.setObjectName('Table')
         self.table_view.setModel(self.table_model)
@@ -77,19 +80,23 @@ class UtilityPaymentPage(CustomWindow):
 
     def table_click(self, index: QtCore.QModelIndex):
         if index.column() == 3:
-            dialog = UtilityBillsDialog(**self.table_model._data[index.row()]['utility_bills'])
+            utility_bills = self.table_model._data[index.row()]['utility_bills'].copy()
+            utility_bills.pop('id')
+            dialog = UtilityBillsDialog(**utility_bills)
             if dialog.is_accepted:
                 utility_bills = dialog()
                 self.table_model._data[index.row()]['utility_bills'] = utility_bills
                 self.table_model._data[index.row()]['amount'] = sum(utility_bills.values())
                 self.table_model._data[index.row()]['changed'] = True
 
-    def update_data(self, final_url: str = 0):
+    def update_data(self, final_url: str = None):
         search = self.search.text()
+        if search == '':
+            search = None
 
-        success, data = api.utility_payment_list(search, final_url)
+        success, data = TransactionApi.utility_bills_payments_list(search=search, final_url=final_url)
         if success:
-            self.table_model = UtilityPaymentTableModel(data['results'])
+            self.table_model = UtilityBillsPaymentsTableModel(data['results'])
             self.table_view.setModel(self.table_model)
 
             if data['previous'] is None:
@@ -111,12 +118,13 @@ class UtilityPaymentPage(CustomWindow):
         self.update_data(final_url=self._previous_page)
     
     def save(self):
-        if not api.utility_payment_update(list(filter(lambda row: row['changed'], self.table_model._data))):
-            dialog = Dialog(tr('Dialog - Error title', 'Update error'),
-                            tr('Dialog - Error text', 'An error occurred while updating data!'),
-                            'error')
-            if dialog.is_accepted:
-                self.SignalClose.emit()
+        pass
+        # if not api.utility_payment_update(list(filter(lambda row: row['changed'], self.table_model._data))):
+        #     dialog = Dialog(tr('Dialog - Error title', 'Update error'),
+        #                     tr('Dialog - Error text', 'An error occurred while updating data!'),
+        #                     'error')
+        #     if dialog.is_accepted:
+        #         self.SignalClose.emit()
 
     def cancel(self):
         self.SignalClose.emit()
