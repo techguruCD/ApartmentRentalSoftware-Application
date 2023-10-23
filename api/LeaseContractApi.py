@@ -2,36 +2,39 @@ from models import (
     LeaseContract,
     Tenant,
     Apartment,
+    Owner
 )
-from settings import PAGINATION_PAGE_SIZE, SEARCH_DELIMETER
 from tools import total_pages
+from peewee import JOIN
 import datetime
+import settings
+
 
 def _filter(search, active, queryset):
     if search not in (None, 'None'):
-        search_terms = [term.strip() for term in search.split(SEARCH_DELIMETER)]
+        search_terms = [term.strip() for term in search.split(settings.SEARCH_DELIMETER)]
         combined_query = None
 
         for term in search_terms:
             term_query = (
+                (LeaseContract.rent_price.contains(term)) |
                 (LeaseContract.start_date.contains(term)) |
                 (LeaseContract.end_date.contains(term)) |
-                (LeaseContract.rent_price.contains(term)) |
 
-                (LeaseContract.tenant.first_name.contains(term)) |
-                (LeaseContract.tenant.last_name.contains(term)) |
-                (LeaseContract.tenant.phone.contains(term)) |
-                (LeaseContract.tenant.email.contains(term)) |
+                (Tenant.first_name.contains(term)) |
+                (Tenant.last_name.contains(term)) |
+                (Tenant.phone.contains(term)) |
+                (Tenant.email.contains(term)) |
 
-                (LeaseContract.apartment.name.contains(term)) |
-                (LeaseContract.apartment.address.contains(term)) |
-                (LeaseContract.apartment.city.contains(term)) |
-                (LeaseContract.apartment.unique_identifier.contains(term)) |
+                (Apartment.name.contains(term)) |
+                (Apartment.address.contains(term)) |
+                (Apartment.city.contains(term)) |
+                (Apartment.unique_identifier.contains(term)) |
 
-                (LeaseContract.apartment.owner.first_name.contains(term)) |
-                (LeaseContract.apartment.owner.last_name.contains(term)) |
-                (LeaseContract.apartment.owner.phone.contains(term)) |
-                (LeaseContract.apartment.owner.email.contains(term))
+                (Owner.first_name.contains(term)) |
+                (Owner.last_name.contains(term)) |
+                (Owner.phone.contains(term)) |
+                (Owner.email.contains(term))
             )
 
             combined_query = term_query if combined_query is None else combined_query | term_query
@@ -39,12 +42,16 @@ def _filter(search, active, queryset):
         queryset = queryset.where(combined_query)
     
     if active == True:
-        queryset = queryset.where(LeaseContract.end_date<=datetime.datetime.now().date())
+        queryset = queryset.where(LeaseContract.end_date >= datetime.datetime.now().date())
 
-    return queryset
+    return queryset.distinct()
 
 def lease_contract_list(search: str = None, active: bool = None, final_url: str = None) -> tuple[bool, dict | None]:
-    queryset = LeaseContract.select()
+    queryset = (LeaseContract.select()
+                .join(Apartment, JOIN.LEFT_OUTER, on=(LeaseContract.apartment == Apartment.id))
+                .join(Tenant, JOIN.LEFT_OUTER, on=(LeaseContract.tenant == Tenant.id))
+                .join(Owner, JOIN.LEFT_OUTER, on=(Apartment.owner == Owner.id))
+    )
     page, previous_page, next_page = 1, None, None
 
     if final_url is not None:
@@ -56,7 +63,7 @@ def lease_contract_list(search: str = None, active: bool = None, final_url: str 
 
         queryset = _filter(search, active, queryset)
 
-        pages = total_pages(len(queryset),PAGINATION_PAGE_SIZE)
+        pages = total_pages(queryset.count(), settings.PAGINATION_PAGE_SIZE)
 
         if pages > 1 and page > 1:
             previous_page = f'{page - 1}\n{search}\n{active}'
@@ -67,57 +74,66 @@ def lease_contract_list(search: str = None, active: bool = None, final_url: str 
     else:
         queryset = _filter(search, active, queryset)
 
-        if total_pages(len(queryset),PAGINATION_PAGE_SIZE) > 1:
+        if total_pages(queryset.count(), settings.PAGINATION_PAGE_SIZE) > 1:
             next_page = f'2\n{search}\n{active}'
 
-    True, {
+    return True, {
         'next': next_page,
         'previous': previous_page,
-        'results': queryset.paginate(page, PAGINATION_PAGE_SIZE)
+        'results': [LeaseContract._to_dict(lease_contract_object) for lease_contract_object in queryset.order_by(-LeaseContract.id).paginate(page, settings.PAGINATION_PAGE_SIZE)]
     }
 
 def get_lease_contract(id: int) -> tuple[bool, dict | None]:
-    lease_contract_object = LeaseContract.get_or_none(Apartment.id==id)
-
-    if lease_contract_object is not None:
-        return True, lease_contract_object
-
-    return False, None
-
-def create_lease_contract(data: dict) -> bool:
     try:
-        tenant_object = Tenant.get_by_id(data.pop('owner')['id'])
-        apartment_object = Apartment.get_by_id(data.pop('apartment')['id'])
+        lease_contract_object = LeaseContract.select().where(LeaseContract.id==id).get()
+        return True, LeaseContract._to_dict(lease_contract_object)
 
-        lease_contract_object = LeaseContract.create(**data)
+    except LeaseContract.DoesNotExist:
+        return False, None
+
+def create_lease_contract(data: dict) -> tuple[bool, dict | None]:
+    try:
+        _data = data.copy()
+        tenant_object = Tenant.get_by_id(_data.pop('tenant')['id'])
+        apartment_object = Apartment.get_by_id(_data.pop('apartment')['id'])
+
+        lease_contract_object = LeaseContract.create(**_data)
         lease_contract_object.tenant = tenant_object
         lease_contract_object.apartment = apartment_object
 
         lease_contract_object.save()
 
-        return True
+        return True, LeaseContract._to_dict(lease_contract_object)
 
     except Exception:
-        return False
+        return False, None
 
-def update_lease_contract(data: dict) -> bool:
+def update_lease_contract(data: dict) -> tuple[bool, dict | None]:
     try:
-        id = data.pop('id')
+        _data = data.copy()
+        id = _data.pop('id')
 
-        tenant_object = Tenant.get_by_id(data.pop('owner')['id'])
-        apartment_object = Apartment.get_by_id(data.pop('apartment')['id'])
+        tenant_object = _data.pop('tenant', None)
+        if tenant_object is not None:
+            tenant_object = Tenant.get_by_id(tenant_object['id'])
 
-        lease_contract_object = Apartment.get_by_id(id)
-        lease_contract_object.tenant = tenant_object
-        lease_contract_object.apartment = apartment_object
+        apartment_object = _data.pop('apartment', None)
+        if apartment_object is not None:
+            apartment_object = Apartment.get_by_id(apartment_object['id'])
 
-        for key, value in data.items():
+        lease_contract_object = LeaseContract.get_by_id(id)
+        if tenant_object is not None:
+            lease_contract_object.tenant = tenant_object
+        if apartment_object is not None:
+            lease_contract_object.apartment = apartment_object
+
+        for key, value in _data.items():
             if hasattr(lease_contract_object, key):
                 setattr(lease_contract_object, key, value)
 
         lease_contract_object.save()
 
-        return True
+        return True, LeaseContract._to_dict(lease_contract_object)
 
     except Exception:
-        return False
+        return False, None
