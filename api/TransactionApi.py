@@ -5,13 +5,16 @@ from models import (
     Apartment,
     Owner,
     Tenant,
+    TRANSACTION_CATEGORIES,
+    TRANSACTION_TYPES
 )
 from tools import total_pages
 from peewee import JOIN
+import datetime
 import settings
 
 
-def _filter(search, transaction_type, category, queryset):
+def _filter(search, transaction_type, category, paid, queryset):
     if search not in (None, 'None'):
         search_terms = [term.strip() for term in search.split(settings.SEARCH_DELIMETER)]
         combined_query = None
@@ -20,7 +23,6 @@ def _filter(search, transaction_type, category, queryset):
             term_query = (
                 (Transaction.date.contains(term)) |
                 (Transaction.amount.contains(term)) |
-                (Transaction.category.contains(term)) |
 
                 (LeaseContract.start_date.contains(term)) |
                 (LeaseContract.end_date.contains(term)) |
@@ -51,10 +53,13 @@ def _filter(search, transaction_type, category, queryset):
 
     if category not in (None, 'None'):
         queryset = queryset.where(Transaction.category == category)
+    
+    if paid not in (None, 'None'):
+        queryset = queryset.where(Transaction.paid == paid)
 
-    return queryset.distinct()
+    return queryset.where().distinct()
 
-def transaction_list(search: str = None, transaction_type: str = 'All', category: str = None, final_url: str = None) -> tuple[bool, dict | None]:
+def transaction_list(search: str = None, transaction_type: str = 'All', category: str = None, paid: bool = True, final_url: str = None) -> tuple[bool, dict | None]:
     queryset = (Transaction.select()
                 .join(LeaseContract, JOIN.LEFT_OUTER, on=(Transaction.lease_contract == LeaseContract.id))
                 .join(UtilityBills, JOIN.LEFT_OUTER, on=(Transaction.utility_bills == UtilityBills.id))
@@ -65,24 +70,27 @@ def transaction_list(search: str = None, transaction_type: str = 'All', category
     page, previous_page, next_page = 1, None, None
 
     if final_url is not None:
-        page, search, transaction_type, category = final_url.split('\n')
+        page, search, transaction_type, category, paid = final_url.split('\n')
         page = int(page)
 
-        queryset = _filter(search, transaction_type, category, queryset)
+        if paid != 'None':
+            paid = bool(paid)
+
+        queryset = _filter(search, transaction_type, category, paid, queryset)
 
         pages = total_pages(queryset.count(), settings.PAGINATION_PAGE_SIZE)
 
         if pages > 1 and page > 1:
-            previous_page = f'{page - 1}\n{search}\n{transaction_type}\n{category}'
+            previous_page = f'{page - 1}\n{search}\n{transaction_type}\n{category}\n{paid}'
 
         if pages > 1 and page < pages:
-            next_page = f'{page + 1}\n{search}\n{transaction_type}\n{category}'
+            next_page = f'{page + 1}\n{search}\n{transaction_type}\n{category}\n{paid}'
 
     else:
-        queryset = _filter(search, transaction_type, category, queryset)
+        queryset = _filter(search, transaction_type, category, paid, queryset)
 
         if total_pages(queryset.count(), settings.PAGINATION_PAGE_SIZE) > 1:
-            next_page = f'2\n{search}\n{transaction_type}\n{category}'
+            next_page = f'2\n{search}\n{transaction_type}\n{category}\n{paid}'
 
     return True, {
         'next': next_page,
@@ -105,7 +113,7 @@ def create_transaction(data: dict) -> tuple[bool, dict | None]:
         utility_bills_object = _data.pop('utility_bills', None)
 
         if utility_bills_object is not None:
-            utility_bills_object, _ = UtilityBills.get_or_create(**utility_bills_object)
+            utility_bills_object = UtilityBills.create(**utility_bills_object)
 
         transaction_object = Transaction.create(**_data)
         transaction_object.lease_contract = lease_contract_object
@@ -131,9 +139,13 @@ def update_transaction(data: dict) -> tuple[bool, dict | None]:
         utility_bills_object = _data.pop('utility_bills', None)
 
         if utility_bills_object is not None:
-            utility_bills_object, _ = UtilityBills.get_or_create(**utility_bills_object)
+            if 'id' in utility_bills_object:
+                utility_bills_object_id = utility_bills_object.pop('id')
+                UtilityBills.get_by_id(utility_bills_object_id).delete_instance()
+            utility_bills_object = UtilityBills.create(**utility_bills_object)
 
         transaction_object = Transaction.get_by_id(id)
+
         if lease_contract_object is not None:
             transaction_object.lease_contract = lease_contract_object
         if utility_bills_object is not None:
@@ -149,3 +161,79 @@ def update_transaction(data: dict) -> tuple[bool, dict | None]:
 
     except Exception:
         return False, None
+
+def rent_payments_list(search: str = None, final_url: str = None) -> tuple[bool, dict | None]:
+    today = datetime.date.today()
+    start_date = datetime.date(today.year, today.month, 1)
+    queryset = (Transaction.select()
+                .join(LeaseContract, JOIN.LEFT_OUTER, on=(Transaction.lease_contract == LeaseContract.id))
+                .join(UtilityBills, JOIN.LEFT_OUTER, on=(Transaction.utility_bills == UtilityBills.id))
+                .join(Apartment, JOIN.LEFT_OUTER, on=(LeaseContract.apartment == Apartment.id))
+                .join(Tenant, JOIN.LEFT_OUTER, on=(LeaseContract.tenant == Tenant.id))
+                .join(Owner, JOIN.LEFT_OUTER, on=(Apartment.owner == Owner.id))
+    ).where(Transaction.category == TRANSACTION_CATEGORIES.rent_payment).where((Transaction.date >= start_date) | (Transaction.paid == False))
+    page, previous_page, next_page = 1, None, None
+
+    if final_url is not None:
+        page, search = final_url.split('\n')
+        page = int(page)
+
+        queryset = _filter(search, 'All', None, None, queryset)
+                
+        pages = total_pages(queryset.count(), settings.PAGINATION_PAGE_SIZE)
+
+        if pages > 1 and page > 1:
+            previous_page = f'{page - 1}\n{search}'
+
+        if pages > 1 and page < pages:
+            next_page = f'{page + 1}\n{search}'
+
+    else:
+        queryset = _filter(search, 'All', None, None, queryset)
+
+        if total_pages(queryset.count(), settings.PAGINATION_PAGE_SIZE) > 1:
+            next_page = f'2\n{search}'
+
+    return True, {
+        'next': next_page,
+        'previous': previous_page,
+        'results': [Transaction._to_dict(transaction_object) for transaction_object in queryset.order_by(Transaction.date).paginate(page, settings.PAGINATION_PAGE_SIZE)]
+    }
+
+def utility_bills_payments_list(search: str = None, final_url: str = None) -> tuple[bool, dict | None]:
+    today = datetime.date.today()
+    start_date = datetime.date(today.year, today.month, 1)
+    queryset = (Transaction.select()
+                .join(LeaseContract, JOIN.LEFT_OUTER, on=(Transaction.lease_contract == LeaseContract.id))
+                .join(UtilityBills, JOIN.LEFT_OUTER, on=(Transaction.utility_bills == UtilityBills.id))
+                .join(Apartment, JOIN.LEFT_OUTER, on=(LeaseContract.apartment == Apartment.id))
+                .join(Tenant, JOIN.LEFT_OUTER, on=(LeaseContract.tenant == Tenant.id))
+                .join(Owner, JOIN.LEFT_OUTER, on=(Apartment.owner == Owner.id))
+    ).where(Transaction.category == TRANSACTION_CATEGORIES.utility_bills_payment).where((Transaction.date >= start_date) | (Transaction.paid == False))
+    page, previous_page, next_page = 1, None, None
+
+    if final_url is not None:
+        page, search = final_url.split('\n')
+        page = int(page)
+
+        queryset = _filter(search, 'All', None, None, queryset)
+                
+        pages = total_pages(queryset.count(), settings.PAGINATION_PAGE_SIZE)
+
+        if pages > 1 and page > 1:
+            previous_page = f'{page - 1}\n{search}'
+
+        if pages > 1 and page < pages:
+            next_page = f'{page + 1}\n{search}'
+
+    else:
+        queryset = _filter(search, 'All', None, None, queryset)
+
+        if total_pages(queryset.count(), settings.PAGINATION_PAGE_SIZE) > 1:
+            next_page = f'2\n{search}'
+
+    return True, {
+        'next': next_page,
+        'previous': previous_page,
+        'results': [Transaction._to_dict(transaction_object) for transaction_object in queryset.order_by(Transaction.date).paginate(page, settings.PAGINATION_PAGE_SIZE)]
+    }

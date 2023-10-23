@@ -935,7 +935,12 @@ class TestTransactionApi(unittest.TestCase):
             'transaction_type': 'income',
             'amount': 100,
             'category': 'otner',
-            'lease_contract': self.create_LeaseContract()
+            'lease_contract': self.create_LeaseContract(),
+            'utility_bills': {
+                'water': 10,
+                'electricity': 10,
+                'tax': 10,
+            }
         }
         success, obj = TransactionApi.create_transaction(transaction)
 
@@ -945,17 +950,26 @@ class TestTransactionApi(unittest.TestCase):
             'transaction_type': 'expense',
             'amount': 333,
             'category': 'rent_payment',
+            'utility_bills': {
+                'id': obj['utility_bills']['id'],
+                'water': 20,
+                'electricity': 20,
+                'tax': 20,
+            }
         }
 
         success, obj = TransactionApi.update_transaction(transacton_new_data)
 
         self.assertTrue(success)
+        obj['utility_bills'].pop('id')
 
         self.assertEqual(transacton_new_data['date'], obj['date'])
         self.assertEqual(transacton_new_data['transaction_type'], obj['transaction_type'])
         self.assertEqual(transacton_new_data['amount'], obj['amount'])
         self.assertEqual(transacton_new_data['category'], obj['category'])
         self.assertEqual(transaction['lease_contract'], obj['lease_contract'])
+        self.assertEqual(transacton_new_data['utility_bills'], obj['utility_bills'])
+
 
     def test_filter_transaction_list(self):
         transaction_1 = {

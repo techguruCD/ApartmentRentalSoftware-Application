@@ -4,19 +4,17 @@
 from peewee import *
 import uuid
 import datetime
-
+from enum import StrEnum
 database = SqliteDatabase('database.sqlite3')
 
-TRANSACTION_CATEGORIES = [
-    'rent_payment',
-    'utility_payment',
-    'other',
-]
+class TRANSACTION_CATEGORIES(StrEnum):
+    rent_payment = 'rent_payment'
+    utility_bills_payment = 'utility_bills_payment'
+    other = 'other'
 
-TRANSACTION_TYPES = [
-    'income',
-    'expense',
-]
+class TRANSACTION_TYPES(StrEnum):
+    income = 'income'
+    expense = 'expense'
 
 
 def get_notification_date(object) -> str:
