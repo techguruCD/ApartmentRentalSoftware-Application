@@ -26,7 +26,7 @@ class RentPaymentsPage(CustomWindow):
         self.table_view.resizeColumnsToContents()
 
         self.show()
-    
+
     def __init_UI(self):
         self.setObjectName('Window')
 
@@ -96,19 +96,19 @@ class RentPaymentsPage(CustomWindow):
             else:
                 self.button_previous.setDisabled(False)
                 self._previous_page = data['previous']
-            
+
             if data['next'] is None:
                 self.button_next.setDisabled(True)
             else:
                 self.button_next.setDisabled(False)
                 self._next_page = data['next']
-            
+
     def next_page(self):
         self.update_data(final_url=self._next_page)
 
     def previous_page(self):
         self.update_data(final_url=self._previous_page)
-    
+
     def save(self):
         for transaction in filter(lambda row: row['changed'], self.table_model._data):
             if not TransactionApi.update_transaction(transaction):
