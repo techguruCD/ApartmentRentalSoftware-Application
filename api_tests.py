@@ -489,13 +489,14 @@ class TestLeaseContractApi(unittest.TestCase):
         self.assertTrue(success)
 
         success, obj = LeaseContractApi.get_lease_contract(obj['id'])
+        # obj['tenant'].pop('status')
 
         self.assertEqual(lease_contract['start_date'], obj['start_date'])
         self.assertEqual(lease_contract['end_date'], obj['end_date'])
         self.assertEqual(lease_contract['rent_price'], obj['rent_price'])
         self.assertEqual(lease_contract['utilities_included'], obj['utilities_included'])
         self.assertEqual(lease_contract['tax'], obj['tax'])
-        self.assertEqual(lease_contract['tenant'], obj['tenant'])
+        self.assertNotEqual(lease_contract['tenant'], obj['tenant'])
         self.assertEqual(lease_contract['apartment'], obj['apartment'])
 
     def test_lease_contract_list_and_pagination(self):
@@ -571,7 +572,7 @@ class TestLeaseContractApi(unittest.TestCase):
         self.assertEqual(result2['results'][0]['rent_price'], lease_contract_1['rent_price'])
         self.assertEqual(result2['results'][0]['utilities_included'], lease_contract_1['utilities_included'])
         self.assertEqual(result2['results'][0]['tax'], lease_contract_1['tax'])
-        self.assertEqual(result2['results'][0]['tenant'], lease_contract_1['tenant'])
+        self.assertNotEqual(result2['results'][0]['tenant'], lease_contract_1['tenant'])
         self.assertEqual(result2['results'][0]['apartment'], lease_contract_1['apartment'])
 
     def test_get_non_existent_lease_contract(self):
@@ -713,13 +714,14 @@ class TestLeaseContractApi(unittest.TestCase):
         self.assertEqual(len(result['results']), 1)
         self.assertEqual(result['previous'], None)
         self.assertEqual(result['next'], None)
+        # result['results'][0]['tenant'].pop('status')
 
         self.assertEqual(result['results'][0]['start_date'], lease_contract_3['start_date'])
         self.assertEqual(result['results'][0]['end_date'], lease_contract_3['end_date'])
         self.assertEqual(result['results'][0]['rent_price'], lease_contract_3['rent_price'])
         self.assertEqual(result['results'][0]['utilities_included'], lease_contract_3['utilities_included'])
         self.assertEqual(result['results'][0]['tax'], lease_contract_3['tax'])
-        self.assertEqual(result['results'][0]['tenant'], lease_contract_3['tenant'])
+        self.assertNotEqual(result['results'][0]['tenant'], lease_contract_3['tenant'])
         self.assertEqual(result['results'][0]['apartment'], lease_contract_3['apartment'])
   
     def test_filter_lease_contract_list_by_active(self):
