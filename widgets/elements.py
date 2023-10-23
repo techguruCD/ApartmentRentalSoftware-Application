@@ -89,7 +89,7 @@ class CustomWindow(QtWidgets.QWidget):
         self.SignalShowMaximized.connect(lambda: parent.showMaximized())
         self.SignalShowNormal.connect(lambda: parent.showNormal())
         self.SignalShowFullScreen.connect(lambda: parent.showFullScreen())
-        self.Signal.connect(parent.onSignal)
+        self.Signal.connect(parent._signal_handler)
 
     def __init_inner_UI(self):
         self.setSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding,

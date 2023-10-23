@@ -28,10 +28,16 @@ from widgets.dialogs import Dialog
 tr = QCoreApplication.translate
 # Name!, Last Name!, Phone!, Email!, Parents' Address, Parents' Phone, Note [text field]
 class TenantPage(CustomWindow):
-    def __init__(self):
+    def __init__(self, id: int = None):
         super().__init__()
+        self.__id = id
+
         self.setWindowTitle(tr('TenantPage - Title', 'Tenant'))
+        
         self.__init_UI()
+
+        if self.__id is not None:
+            self.__load_tenant()
 
     def __init_UI(self):
         self.setObjectName("Window")
@@ -112,6 +118,15 @@ class TenantPage(CustomWindow):
             Dialog(tr('TenantPage - Success title', 'Save success'),
                             tr('TenantPage - Success text', 'Tenant Created'),
                             'success')
+
     def cancel(self):
-        self.Signal.emit({'window': 'tenantList'})
-        # self.SignalClose.emit()
+        self.Signal.emit({'window': 'back'})
+
+    def __load_tenant(self):
+        success, tenant = api.get_tenant(self.__id)
+        if success:
+            print('yes')
+        else:
+            Dialog(tr('TenantPage - Error title', 'Save error'),
+                tr('TenantPage - Error text', 'An error occurred while load data!'),
+                'error')
