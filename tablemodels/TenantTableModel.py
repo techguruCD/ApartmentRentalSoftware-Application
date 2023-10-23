@@ -32,7 +32,7 @@ class TenantTableModel(QtCore.QAbstractTableModel):
                 case 2: # phone
                     return self._data[row]['phone']
                 case 3: # name
-                    return self._data[row]['first_name'] + self._data[row]['last_name']
+                    return self._data[row]['first_name'] + ' ' + self._data[row]['last_name']
 
         # change colors
         if role == QtCore.Qt.ItemDataRole.BackgroundRole:

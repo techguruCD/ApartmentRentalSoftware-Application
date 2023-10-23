@@ -160,6 +160,3 @@ class TenantListPage(CustomWindow):
     
     def previous_page(self):
         self.update_data(final_url=self._previous_page)
-
-    # def cancel(self):
-    #     self.SignalClose.emit()
