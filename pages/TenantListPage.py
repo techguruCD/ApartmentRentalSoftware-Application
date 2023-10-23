@@ -40,7 +40,7 @@ class TenantListPage(CustomWindow):
         self.__init_UI()
 
         self.update_data()
-        # self.table_view.resizeColumnsToContents()
+        self.table_view.resizeColumnsToContents()
 
     def __init_UI(self):
         self.setObjectName("Window")
@@ -124,9 +124,9 @@ class TenantListPage(CustomWindow):
         layout.addWidget(self.table_view, 2, 0, 1, 3)
         layout.addWidget(self.button_previous, 3, 0)
         layout.addWidget(self.button_next, 3, 2)
-        layout.addLayout(layout_control, 2, 3, 2, 1)
+        layout.addLayout(layout_control, 1, 3, 3, 1)
         # layout.addWidget(button_cancel, 4, 0, 1, 4)
-
+        layout.setRowStretch(2, 1)
         self.widget.setLayout(layout)
 
     def table_click(self, index: QModelIndex):
