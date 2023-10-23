@@ -43,6 +43,7 @@ class TenantPage(CustomWindow):
         self.button_back = QPushButton(icon=QIcon('data/arrow-long-left.svg'), parent=self)
         self.button_back.setObjectName('IconButton')
         self.button_back.setIconSize(QSize(24, 24))
+        self.button_back.clicked.connect(self.cancel)
         back_layout = QHBoxLayout()
         back_layout.addWidget(self.button_back)
         back_layout.addSpacerItem(QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum))
@@ -112,4 +113,5 @@ class TenantPage(CustomWindow):
                             tr('TenantPage - Success text', 'Tenant Created'),
                             'success')
     def cancel(self):
-        self.SignalClose.emit()
+        self.Signal.emit({'window': 'tenantList'})
+        # self.SignalClose.emit()
