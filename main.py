@@ -23,6 +23,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.show()
 
+    def onSignal(self, param):
+        print(param)
+
 def addFont(file_name):
     with open(file_name, 'rb') as file:
         font = file.read()
