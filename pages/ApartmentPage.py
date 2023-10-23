@@ -6,11 +6,13 @@ from PySide6.QtCore import (
     QModelIndex
 )
 from PySide6.QtGui import (
-    QIcon
+    QIcon,
+    QFont
 )
 from PySide6.QtWidgets import (
     QWidget,
     QFrame,
+    QScrollArea,
     QLineEdit,
     QPlainTextEdit,
     QTableView,
@@ -24,10 +26,11 @@ from PySide6.QtWidgets import (
     QSizePolicy
 )
 
-from api import ApartmentApi, TransactionApi
+# from api import ApartmentApi, TransactionApi
 from widgets.elements import InputWrapper, CustomWindow
 from widgets.dialogs import Dialog
 from tablemodels.TransactionTableModel import TransactionTableModel
+from tablemodels.ApartmentOwnerTableModel import ApartmentOwnerTableModel
 
 tr = QCoreApplication.translate
 # Name!, Last Name!, Phone!, Mail!, Parents' Address, Parents' Phone, Note [text field]
@@ -40,7 +43,7 @@ class ApartmentPage(CustomWindow):
 
         self.__init_UI()
 
-        self.update_data()
+        # self.update_data()
         self.table_view.resizeColumnsToContents()
 
     def __init_UI(self):
@@ -74,6 +77,7 @@ class ApartmentPage(CustomWindow):
 
         self.table_model = TransactionTableModel([])
         self.table_view = QTableView(self)
+        self.table_view.setMinimumWidth(350)
         self.table_view.setObjectName('Table')
         self.table_view.setModel(self.table_model)
 
@@ -108,6 +112,10 @@ class ApartmentPage(CustomWindow):
         self.button_details.clicked.connect(self.detail_clicked)
 
         self.panel_detail = QWidget(self)
+
+        self.identifier = QLineEdit(self)
+        self.identifier.setObjectName('Input')
+
         self.name = QLineEdit(self)
         self.name.setObjectName('Input')
         self.address = QLineEdit(self)
@@ -115,6 +123,8 @@ class ApartmentPage(CustomWindow):
         self.city = QLineEdit(self)
         self.city.setObjectName('Input')
         layout_panel_1 = QHBoxLayout()
+        layout_panel_1.setContentsMargins(0, 0, 0, 0)
+        layout_panel_1.setSpacing(20)
         layout_panel_1.addWidget(InputWrapper(tr('Widgets - Name', 'Name'), self.name))
         layout_panel_1.addWidget(InputWrapper(tr('Widgets - Address', 'Address'), self.address))
         layout_panel_1.addWidget(InputWrapper(tr('Widgets - City', 'City'), self.city))
@@ -123,28 +133,76 @@ class ApartmentPage(CustomWindow):
         self.rooms.setObjectName('Input')
         self.area = QLineEdit(self)
         self.area.setObjectName('Input')
-        self.floor = QLineEdit(self)
-        self.floor.setObjectName('Input')
         layout_panel_2 = QHBoxLayout()
+        layout_panel_2.setContentsMargins(0, 0, 0, 0)
+        layout_panel_2.setSpacing(20)
         layout_panel_2.addWidget(InputWrapper(tr('Widgets - Rooms', 'Rooms'), self.rooms))
         layout_panel_2.addWidget(InputWrapper(tr('Widgets - Area', 'Area'), self.area))
-        layout_panel_2.addWidget(InputWrapper(tr('Widgets - Floor', 'Floor'), self.floor))
 
+        self.floor = QLineEdit(self)
+        self.floor.setObjectName('Input')
         self.beds = QLineEdit(self)
         self.beds.setObjectName('Input')
+        layout_panel_3 = QHBoxLayout()
+        layout_panel_3.setContentsMargins(0, 0, 0, 0)
+        layout_panel_3.setSpacing(20)
+        layout_panel_3.addWidget(InputWrapper(tr('Widgets - Floor', 'Floor'), self.floor))
+        layout_panel_3.addWidget(InputWrapper(tr('Widgets - Beds', 'Beds'), self.beds))
+
         self.owner = QLineEdit(self)
         self.owner.setObjectName('Input')
-        layout_panel_3 = QHBoxLayout()
-        layout_panel_3.addWidget(InputWrapper(tr('Widgets - Beds', 'Beds'), self.beds))
-        layout_panel_3.addWidget(InputWrapper(tr('Widgets - Owner', 'Owner'), self.owner))
+
+        # owner_frame start
+        self.owner_frame = QFrame(self)
+        self.owner_frame.setObjectName('Frame')
+        layout_tenant = QGridLayout()
+        layout_tenant.setSpacing(20)
+
+        label = QLabel(tr('ApartmentPage - Owner label', 'Owner'), font=QFont('Open Sans', 24, 600))
+        label.setObjectName('Label')
+
+        self.search_tenant = QLineEdit(self)
+        self.search_tenant.setObjectName('Input')
+        self.search_tenant.setPlaceholderText('🔍')
+
+        self.table_model_tenant = ApartmentOwnerTableModel([])
+        self.table_view_tenant = QTableView(self)
+        self.table_view_tenant.setObjectName('Table')
+        self.table_view_tenant.setModel(self.table_model_tenant)
+        self.table_view_tenant.hideColumn(0)
+        self.table_view_tenant.setMinimumHeight(100)
+
+        button_next_tenant = QPushButton(icon=QIcon('data/arrow-long-right.svg'), parent=self)
+        button_next_tenant.setObjectName('IconButton')
+        button_next_tenant.setIconSize(QSize(24, 24))
+        button_next_tenant.clicked.connect(self.next_page_owner)
+        button_next_tenant.setDisabled(True)
+
+        button_previous_tenant = QPushButton(icon=QIcon('data/arrow-long-left.svg'), parent=self)
+        button_previous_tenant.setObjectName('IconButton')
+        button_previous_tenant.setIconSize(QSize(24, 24))
+        button_previous_tenant.clicked.connect(self.next_page_owner)
+        button_previous_tenant.setDisabled(True)
+
+        layout_tenant.addWidget(label, 0, 0, 1, 3)
+        layout_tenant.addWidget(InputWrapper(tr('Widgets - Search', 'Search'), self.search_tenant), 1, 0, 1, 3)
+        layout_tenant.addWidget(self.table_view_tenant, 2, 0, 1, 3)
+        layout_tenant.addWidget(button_previous_tenant, 3, 0, 1, 1)
+        layout_tenant.addWidget(button_next_tenant, 3, 2, 1, 1)
+
+        self.owner_frame.setLayout(layout_tenant)
+        # owner_frame end
         
         self.note = QPlainTextEdit(self)
         self.note.setObjectName('Input')
 
         layout_panel = QVBoxLayout()
+        layout_panel.addWidget(InputWrapper(tr('Widgets - Identifier', 'Identifier'), self.identifier))
         layout_panel.addLayout(layout_panel_1)
         layout_panel.addLayout(layout_panel_2)
         layout_panel.addLayout(layout_panel_3)
+        layout_panel.addWidget(InputWrapper(tr('Widgets - Owner', 'Owner'), self.owner))
+        layout_panel.addWidget(self.owner_frame)
         layout_panel.addWidget(InputWrapper(tr('Widgets - Note', 'Note'), self.note))
 
         self.panel_detail.setLayout(layout_panel)
@@ -180,7 +238,20 @@ class ApartmentPage(CustomWindow):
         # layout.addWidget(self.panel_detail, 2, 4, 2, 1)
         # layout.addLayout(layout_save, 4, 0, 1, 5)
         layout.setRowStretch(2, 1)
-        self.widget.setLayout(layout)
+
+
+        scroll_widget = QWidget(self)
+        scroll_widget.setObjectName('Window')
+        scroll_widget.setLayout(layout)
+
+        scroll = QScrollArea()
+        scroll.setWidget(scroll_widget)
+        scroll.setWidgetResizable(True)
+
+        scroll_layout = QVBoxLayout()
+        scroll_layout.addWidget(scroll)
+
+        self.widget.setLayout(scroll_layout)
 
     def table_click(self, index: QModelIndex):
         self.Signal.emit({'window': 'tenantList', 'id': self.table_model._data[index.row()]['id']})
@@ -213,6 +284,9 @@ class ApartmentPage(CustomWindow):
     
     def previous_page(self):
         self.update_data(final_url=self._previous_page)
+
+    def next_page_owner(self):
+        self
 
     def save(self):
         # data = {

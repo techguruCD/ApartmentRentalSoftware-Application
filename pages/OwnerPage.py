@@ -20,16 +20,16 @@ from PySide6.QtWidgets import (
     QSizePolicy
 )
 
-import api.ApartmentOwnerApi as api
+import api.OwnerApi as api
 from widgets.elements import InputWrapper, CustomWindow
 from widgets.dialogs import Dialog
 
 tr = QCoreApplication.translate
 # First name!, Last name!, Phone!, Mail!, Note[Text field]
-class ApartmentOwnerPage(CustomWindow):
+class OwnerPage(CustomWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle(tr('ApartmentOwnerPage - Title', 'Apartment Owner'))
+        self.setWindowTitle(tr('OwnerPage - Title', 'Apartment Owner'))
         self.__init_UI()
     def __init_UI(self):
         self.setObjectName("Window")
@@ -45,7 +45,7 @@ class ApartmentOwnerPage(CustomWindow):
         back_layout.addWidget(self.button_back)
         back_layout.addSpacerItem(QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum))
 
-        # self.label_title = QLabel(tr('ApartmentOwnerPage - Title', 'Apartment Owner'), self)
+        # self.label_title = QLabel(tr('OwnerPage - Title', 'Apartment Owner'), self)
         # self.label_title.setObjectName('TitleLabel')
 
         self.first_name = QLineEdit(self)
@@ -88,9 +88,9 @@ class ApartmentOwnerPage(CustomWindow):
             'mail': self.mail.text(),
             'note': self.note.toPlainText()
         }
-        if not api.apartment_owner_save(data):
-            dialog = Dialog(tr('ApartmentOwnerPage - Error title', 'Update error'),
-                            tr('ApartmentOwnerPage - Error text', 'An error occurred while updating data!'),
+        if not api.create_owner(data):
+            dialog = Dialog(tr('OwnerPage - Error title', 'Update error'),
+                            tr('OwnerPage - Error text', 'An error occurred while updating data!'),
                             'error')
             if dialog.is_accepted:
                 self.SignalClose.emit()
