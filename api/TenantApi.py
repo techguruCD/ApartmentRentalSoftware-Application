@@ -1,10 +1,13 @@
-from models import Tenant
-from settings import PAGINATION_PAGE_SIZE, SEARCH_DELIMETER
+from models import (
+    Tenant,
+)
 from tools import total_pages
+import settings
+
 
 def _filter(search, queryset):
     if search not in (None, 'None'):
-        search_terms = [term.strip() for term in search.split(SEARCH_DELIMETER)]
+        search_terms = [term.strip() for term in search.split(settings.SEARCH_DELIMETER)]
         combined_query = None
 
         for term in search_terms:
@@ -21,7 +24,7 @@ def _filter(search, queryset):
 
         queryset = queryset.where(combined_query)
 
-    return queryset
+    return queryset.distinct()
 
 def tenant_list(search: str = None, final_url: str = None) -> tuple[bool, dict | None]:
     queryset = Tenant.select()
@@ -33,7 +36,7 @@ def tenant_list(search: str = None, final_url: str = None) -> tuple[bool, dict |
 
         queryset = _filter(search, queryset)
 
-        pages = total_pages(len(queryset),PAGINATION_PAGE_SIZE)
+        pages = total_pages(queryset.count(), settings.PAGINATION_PAGE_SIZE)
 
         if pages > 1 and page > 1:
             previous_page = f'{page - 1}\n{search}'
@@ -44,47 +47,48 @@ def tenant_list(search: str = None, final_url: str = None) -> tuple[bool, dict |
     else:
         queryset = _filter(search, queryset)
 
-        if total_pages(len(queryset),PAGINATION_PAGE_SIZE) > 1:
+        if total_pages(queryset.count(), settings.PAGINATION_PAGE_SIZE) > 1:
             next_page = f'2\n{search}'
 
-    True, {
+    return True, {
         'next': next_page,
         'previous': previous_page,
-        'results': queryset.paginate(page, PAGINATION_PAGE_SIZE)
+        'results': [Tenant._to_dict(tenant_object) for tenant_object in queryset.order_by(Tenant.id).paginate(page, settings.PAGINATION_PAGE_SIZE)]
     }
 
 def get_tenant(id: int) -> tuple[bool, dict | None]:
-    tenant_object = Tenant.get_or_none(Tenant.id==id)
+    try:
+        tenant_object = Tenant.select().where(Tenant.id==id).get()
+        return True, Tenant._to_dict(tenant_object)
 
-    if tenant_object is not None:
-        return True, tenant_object
+    except Tenant.DoesNotExist:
+        return False, None
 
-    return False, None
-
-def create_tenant(data: dict) -> bool:
+def create_tenant(data: dict) -> tuple[bool, dict | None]:
     try:
 
         tenant_object = Tenant.create(**data)
         tenant_object.save()
 
-        return True
+        return True, Tenant._to_dict(tenant_object)
 
     except Exception:
-        return False
+        return False, None
 
-def update_tenant(data: dict) -> bool:
+def update_tenant(data: dict) -> tuple[bool, dict | None]:
     try:
-        id = data.pop('id')
+        _data = data.copy()
+        id = _data.pop('id')
 
         tenant_object = Tenant.get_by_id(id)
 
-        for key, value in data.items():
+        for key, value in _data.items():
             if hasattr(tenant_object, key):
                 setattr(tenant_object, key, value)
 
         tenant_object.save()
 
-        return True
+        return True, Tenant._to_dict(tenant_object)
 
     except Exception:
-        return False
+        return False, None

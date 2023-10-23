@@ -1,10 +1,13 @@
-from models import Owner
-from settings import PAGINATION_PAGE_SIZE, SEARCH_DELIMETER
+from models import (
+    Owner,
+)
 from tools import total_pages
+import settings
+
 
 def _filter(search, queryset):
     if search not in (None, 'None'):
-        search_terms = [term.strip() for term in search.split(SEARCH_DELIMETER)]
+        search_terms = [term.strip() for term in search.split(settings.SEARCH_DELIMETER)]
         combined_query = None
 
         for term in search_terms:
@@ -19,7 +22,7 @@ def _filter(search, queryset):
 
         queryset = queryset.where(combined_query)
 
-    return queryset
+    return queryset.distinct()
 
 def owner_list(search: str = None, final_url: str = None) -> tuple[bool, dict | None]:
     queryset = Owner.select()
@@ -31,7 +34,7 @@ def owner_list(search: str = None, final_url: str = None) -> tuple[bool, dict | 
 
         queryset = _filter(search, queryset)
 
-        pages = total_pages(len(queryset),PAGINATION_PAGE_SIZE)
+        pages = total_pages(queryset.count(), settings.PAGINATION_PAGE_SIZE)
 
         if pages > 1 and page > 1:
             previous_page = f'{page - 1}\n{search}'
@@ -42,47 +45,48 @@ def owner_list(search: str = None, final_url: str = None) -> tuple[bool, dict | 
     else:
         queryset = _filter(search, queryset)
 
-        if total_pages(len(queryset),PAGINATION_PAGE_SIZE) > 1:
+        if total_pages(queryset.count(), settings.PAGINATION_PAGE_SIZE) > 1:
             next_page = f'2\n{search}'
 
-    True, {
+    return True, {
         'next': next_page,
         'previous': previous_page,
-        'results': queryset.paginate(page, PAGINATION_PAGE_SIZE)
+        'results': [Owner._to_dict(owner_object) for owner_object in queryset.order_by(Owner.id).paginate(page, settings.PAGINATION_PAGE_SIZE)]
     }
 
 def get_owner(id: int) -> tuple[bool, dict | None]:
-    owner_object = Owner.get_or_none(Owner.id==id)
+    try:
+        owner_object = Owner.select().where(Owner.id==id).get()
+        return True, Owner._to_dict(owner_object)
 
-    if owner_object is not None:
-        return True, owner_object
+    except Owner.DoesNotExist:
+        return False, None
 
-    return False, None
-
-def create_owner(data: dict) -> bool:
+def create_owner(data: dict) -> tuple[bool, dict | None]:
     try:
 
         owner_object = Owner.create(**data)
         owner_object.save()
 
-        return True
+        return True, Owner._to_dict(owner_object)
 
     except Exception:
-        return False
+        return False, None
 
-def update_owner(data: dict) -> bool:
+def update_owner(data: dict) -> tuple[bool, dict | None]:
     try:
-        id = data.pop('id')
+        _data = data.copy()
+        id = _data.pop('id')
 
         owner_object = Owner.get_by_id(id)
 
-        for key, value in data.items():
+        for key, value in _data.items():
             if hasattr(owner_object, key):
                 setattr(owner_object, key, value)
 
         owner_object.save()
 
-        return True
+        return True, Owner._to_dict(owner_object)
 
     except Exception:
-        return False
+        return False, None

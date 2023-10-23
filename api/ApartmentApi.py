@@ -2,12 +2,14 @@ from models import (
     Apartment,
     Owner,
 )
-from settings import PAGINATION_PAGE_SIZE, SEARCH_DELIMETER
 from tools import total_pages
+from peewee import JOIN
+import settings
+
 
 def _filter(search, queryset):
     if search not in (None, 'None'):
-        search_terms = [term.strip() for term in search.split(SEARCH_DELIMETER)]
+        search_terms = [term.strip() for term in search.split(settings.SEARCH_DELIMETER)]
         combined_query = None
 
         for term in search_terms:
@@ -21,20 +23,20 @@ def _filter(search, queryset):
                 (Apartment.floor.contains(term)) |
                 (Apartment.beds.contains(term)) |
 
-                (Apartment.owner.first_name.contains(term)) |
-                (Apartment.owner.last_name.contains(term)) |
-                (Apartment.owner.phone.contains(term)) |
-                (Apartment.owner.email.contains(term))
+                (Owner.first_name.contains(term)) |
+                (Owner.last_name.contains(term)) |
+                (Owner.phone.contains(term)) |
+                (Owner.email.contains(term))
             )
 
             combined_query = term_query if combined_query is None else combined_query | term_query
 
         queryset = queryset.where(combined_query)
 
-    return queryset
+    return queryset.distinct()
 
 def apartment_list(search: str = None, final_url: str = None) -> tuple[bool, dict | None]:
-    queryset = Apartment.select()
+    queryset = Apartment.select().join(Owner, JOIN.LEFT_OUTER, on=(Apartment.owner == Owner.id))
     page, previous_page, next_page = 1, None, None
 
     if final_url is not None:
@@ -43,7 +45,7 @@ def apartment_list(search: str = None, final_url: str = None) -> tuple[bool, dic
 
         queryset = _filter(search, queryset)
 
-        pages = total_pages(len(queryset),PAGINATION_PAGE_SIZE)
+        pages = total_pages(queryset.count(), settings.PAGINATION_PAGE_SIZE)
 
         if pages > 1 and page > 1:
             previous_page = f'{page - 1}\n{search}'
@@ -54,53 +56,59 @@ def apartment_list(search: str = None, final_url: str = None) -> tuple[bool, dic
     else:
         queryset = _filter(search, queryset)
 
-        if total_pages(len(queryset),PAGINATION_PAGE_SIZE) > 1:
+        if total_pages(queryset.count(), settings.PAGINATION_PAGE_SIZE) > 1:
             next_page = f'2\n{search}'
 
-    True, {
+    return True, {
         'next': next_page,
         'previous': previous_page,
-        'results': queryset.paginate(page, PAGINATION_PAGE_SIZE)
+        'results': [Apartment._to_dict(apartment_object) for apartment_object in queryset.order_by(Apartment.id).paginate(page, settings.PAGINATION_PAGE_SIZE)]
     }
 
 def get_apartment(id: int) -> tuple[bool, dict | None]:
-    apartment_object = Apartment.get_or_none(Apartment.id==id)
-
-    if apartment_object is not None:
-        return True, apartment_object
-
-    return False, None
-
-def create_apartment(data: dict) -> bool:
     try:
-        owner_object = Owner.get_by_id(data.pop('owner')['id'])
+        apartment_object = Apartment.select(Apartment).where(Apartment.id==id).get()
+        
+        return True, Apartment._to_dict(apartment_object)
 
-        apartment_object = Apartment.create(**data)
+    except Apartment.DoesNotExist:
+        return False, None
+
+def create_apartment(data: dict) -> tuple[bool, dict | None]:
+    try:
+        _data = data.copy()
+        owner_object = Owner.get_by_id(_data.pop('owner')['id'])
+
+        apartment_object = Apartment.create(**_data)
         apartment_object.owner = owner_object
 
         apartment_object.save()
 
-        return True
+        return True, Apartment._to_dict(apartment_object)
 
     except Exception:
-        return False
+        return False, None
 
-def update_apartment(data: dict) -> bool:
+def update_apartment(data: dict) -> tuple[bool, dict | None]:
     try:
-        id = data.pop('id')
+        _data = data.copy()
+        id = _data.pop('id')
 
-        owner_object = Owner.get_by_id(data.pop('owner')['id'])
+        owner_object = _data.pop('owner', None)
+        if owner_object is not None:    
+            owner_object = Owner.get_by_id(owner_object['id'])
         
         apartment_object = Apartment.get_by_id(id)
-        apartment_object.owner = owner_object
+        if owner_object is not None:    
+            apartment_object.owner = owner_object
 
-        for key, value in data.items():
+        for key, value in _data.items():
             if hasattr(apartment_object, key):
                 setattr(apartment_object, key, value)
 
         apartment_object.save()
 
-        return True
+        return True, Apartment._to_dict(apartment_object)
 
     except Exception:
-        return False
+        return False, None
