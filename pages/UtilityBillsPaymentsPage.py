@@ -68,7 +68,7 @@ class UtilityBillsPaymentsPage(CustomWindow):
         button_cancel.setObjectName('DialogButton')
         button_cancel.clicked.connect(self.cancel)
 
-        layout.addWidget(InputWrapper(tr('Widgets - Search', 'Search'), self.search), 0, 0, 1, 5)
+        layout.addWidget(InputWrapper(tr('Widgets - Search', 'Search'), self.search), 0, 0, 1, 5, alignment=QtCore.Qt.AlignmentFlag.AlignTop)
         layout.addWidget(self.table_view, 1, 0, 1, 5)
         layout.addWidget(self.button_previous, 2, 0)
         layout.addWidget(self.button_next, 2, 4)
@@ -124,8 +124,8 @@ class UtilityBillsPaymentsPage(CustomWindow):
                                 tr('Dialog - Error text', 'An error occurred while updating data!'),
                                 'error')
                 if dialog.is_accepted:
-                    self.SignalClose.emit()
-        self.SignalClose.emit()
+                    self.close()
+        self.close()
 
     def cancel(self):
-        self.SignalClose.emit()
+        self.close()
