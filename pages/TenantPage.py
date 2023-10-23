@@ -60,10 +60,10 @@ class TenantPage(CustomWindow):
         self.email = QLineEdit(self)
         self.email.setObjectName('Input')
         
-        self.parent_address = QLineEdit(self)
-        self.parent_address.setObjectName('Input')
-        self.parent_phone = QLineEdit(self)
-        self.parent_phone.setObjectName('Input')
+        self.parents_address = QLineEdit(self)
+        self.parents_address.setObjectName('Input')
+        self.parents_phone = QLineEdit(self)
+        self.parents_phone.setObjectName('Input')
         
         self.note = QPlainTextEdit(self)
         self.note.setObjectName('Input')
@@ -81,8 +81,8 @@ class TenantPage(CustomWindow):
         layout.addWidget(InputWrapper(tr('Widgets - Phone', 'Phone'), self.phone), 2, 0, 1, 1)
         layout.addWidget(InputWrapper(tr('Widgets - Email', 'Email'), self.email), 2, 1, 1, 1)
 
-        layout.addWidget(InputWrapper(tr("Widgets - Parents' address", "Parents' address"), self.parent_address), 3, 0, 1, 1)
-        layout.addWidget(InputWrapper(tr("Widgets - Parents' phone", "Parents' phone"), self.parent_phone), 3, 1, 1, 1)
+        layout.addWidget(InputWrapper(tr("Widgets - Parents' address", "Parents' address"), self.parents_address), 3, 0, 1, 1)
+        layout.addWidget(InputWrapper(tr("Widgets - Parents' phone", "Parents' phone"), self.parents_phone), 3, 1, 1, 1)
 
         layout.addWidget(InputWrapper(tr('Widgets - Note', 'Note'), self.note), 4, 0, 1, 2)
         layout.addWidget(self.button_save, 5, 0, 1, 1)
@@ -98,15 +98,16 @@ class TenantPage(CustomWindow):
             'last_name': self.last_name.text(),
             'phone': self.phone.text(),
             'email': self.email.text(),
-            'parent_address': self.parent_address.text(),
-            'parent_phone': self.parent_phone.text(),
+            'parents_address': self.parents_address.text(),
+            'parents_phone': self.parents_phone.text(),
             'note': self.note.toPlainText()
         }
-        if not api.create_tenant(data):
+        success, new_tenant = api.create_tenant(data)
+        if not success:
             dialog = Dialog(tr('TenantPage - Error title', 'Save error'),
                             tr('TenantPage - Error text', 'An error occurred while updating data!'),
                             'error')
-            if dialog.is_accepted:
-                self.SignalClose.emit()
+            # if dialog.is_accepted:
+            #     self.SignalClose.emit()
     def cancel(self):
         self.SignalClose.emit()
