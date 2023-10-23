@@ -25,7 +25,7 @@ from widgets.elements import InputWrapper, CustomWindow
 from widgets.dialogs import Dialog
 
 tr = QCoreApplication.translate
-# First name!, Last name!, Phone!, Mail!, Note[Text field]
+# First name!, Last name!, Phone!, Email!, Note[Text field]
 class OwnerPage(CustomWindow):
     def __init__(self):
         super().__init__()
@@ -55,8 +55,8 @@ class OwnerPage(CustomWindow):
         
         self.phone = QLineEdit(self)
         self.phone.setObjectName('Input')
-        self.mail = QLineEdit(self)
-        self.mail.setObjectName('Input')
+        self.email = QLineEdit(self)
+        self.email.setObjectName('Input')
         
         self.note = QPlainTextEdit(self)
         self.note.setObjectName('Input')
@@ -72,7 +72,7 @@ class OwnerPage(CustomWindow):
         layout.addWidget(InputWrapper(tr('Widgets - First Name', 'First Name'), self.first_name), 1, 0, 1, 1)
         layout.addWidget(InputWrapper(tr('Widgets - Last Name', 'Last Name'), self.last_name), 1, 1, 1, 1)
         layout.addWidget(InputWrapper(tr('Widgets - Phone', 'Phone'), self.phone), 2, 0, 1, 1)
-        layout.addWidget(InputWrapper(tr('Widgets - Mail', 'Mail'), self.mail), 2, 1, 1, 1)
+        layout.addWidget(InputWrapper(tr('Widgets - Email', 'Email'), self.email), 2, 1, 1, 1)
 
         layout.addWidget(InputWrapper(tr('Widgets - Note', 'Note'), self.note), 3, 0, 1, 2)
         layout.addWidget(button_save, 4, 0, 1, 1)
@@ -85,15 +85,20 @@ class OwnerPage(CustomWindow):
             'first_name': self.first_name.text(),
             'last_name': self.last_name.text(),
             'phone': self.phone.text(),
-            'mail': self.mail.text(),
+            'email': self.email.text(),
             'note': self.note.toPlainText()
         }
-        if not api.create_owner(data):
+        success, new_owner = api.create_owner(data)
+        if not success:
             dialog = Dialog(tr('OwnerPage - Error title', 'Update error'),
                             tr('OwnerPage - Error text', 'An error occurred while updating data!'),
                             'error')
-            if dialog.is_accepted:
-                self.SignalClose.emit()
+            # if dialog.is_accepted:
+            #     self.SignalClose.emit()
+        else:
+            dialog = Dialog(tr('OwnerPage - Success title', 'Save success'),
+                            tr('OwnerPage - Success text', 'Save success'),
+                            'error')
 
     def cancel(self):
         self.SignalClose.emit()
