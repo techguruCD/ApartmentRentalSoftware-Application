@@ -31,7 +31,6 @@ from widgets.elements import InputWrapper, CustomWindow
 from widgets.dialogs import Dialog
 from tablemodels.TenantTableModel import TenantTableModel
 from tablemodels.ApartmentTableModel import ApartmentTableModel
-from tablemodels.RentPaymentTableModel import RentPaymentTableModel
 import datetime
 
 tr = QCoreApplication.translate
@@ -80,7 +79,7 @@ class TransactionPage(CustomWindow):
         self.search_apartment.setObjectName('Input')
         self.search_apartment.setPlaceholderText('🔍')
 
-        self.table_model_apartment = RentPaymentTableModel([])
+        self.table_model_apartment = TenantTableModel([])
         self.table_view_apartment = QTableView(self)
         self.table_view_apartment.setObjectName('Table')
         self.table_view_apartment.setModel(self.table_model_apartment)
