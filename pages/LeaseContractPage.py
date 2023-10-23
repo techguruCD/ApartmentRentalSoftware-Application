@@ -26,7 +26,7 @@ from PySide6.QtWidgets import (
     QLabel
 )
 
-from api import ApartmentApi, TenantApi, RentalApi
+from api import ApartmentApi, TenantApi, LeaseContractApi
 from widgets.elements import InputWrapper, CustomWindow
 from widgets.dialogs import Dialog
 from tablemodels.TenantTableModel import TenantTableModel
@@ -237,7 +237,7 @@ class LeaseContractPage(CustomWindow):
         #     'parent_phone': self.parent_phone.text(),
         #     'note': self.note.toPlainText()
         # }
-        if not RentalApi.rental_save(None):
+        if not LeaseContractApi.create_lease_contract(None):
             dialog = Dialog(tr('LeaseContractPage - Error title', 'Save error'),
                             tr('LeaseContractPage - Error text', 'An error occurred while updating data!'),
                             'error')
