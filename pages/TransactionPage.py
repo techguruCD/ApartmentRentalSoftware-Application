@@ -26,7 +26,7 @@ from PySide6.QtWidgets import (
     QLabel
 )
 
-from api import ApartmentApi, TenantApi, RentalApi
+from api import ApartmentApi, TenantApi, TransactionApi
 from widgets.elements import InputWrapper, CustomWindow
 from widgets.dialogs import Dialog
 from tablemodels.TenantTableModel import TenantTableModel
@@ -80,7 +80,7 @@ class TransactionPage(CustomWindow):
         self.search_apartment.setObjectName('Input')
         self.search_apartment.setPlaceholderText('🔍')
 
-        self.table_model_apartment = RentPaymentTableModel([])
+        self.table_model_apartment = TenantTableModel([])
         self.table_view_apartment = QTableView(self)
         self.table_view_apartment.setObjectName('Table')
         self.table_view_apartment.setModel(self.table_model_apartment)
@@ -184,7 +184,7 @@ class TransactionPage(CustomWindow):
         #     'parent_phone': self.parent_phone.text(),
         #     'note': self.note.toPlainText()
         # }
-        if not RentalApi.rental_save(None):
+        if not TransactionApi.create_transaction(None):
             dialog = Dialog(tr('TransactionPage - Error title', 'Save error'),
                             tr('TransactionPage - Error text', 'An error occurred while updating data!'),
                             'error')

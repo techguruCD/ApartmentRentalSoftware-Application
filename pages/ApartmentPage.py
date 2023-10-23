@@ -26,11 +26,12 @@ from PySide6.QtWidgets import (
     QSizePolicy
 )
 
-# from api import ApartmentApi, TransactionApi
+from api import ApartmentApi, TransactionApi, TenantApi
 from widgets.elements import InputWrapper, CustomWindow
 from widgets.dialogs import Dialog
 from tablemodels.TransactionTableModel import TransactionTableModel
 from tablemodels.ApartmentOwnerTableModel import ApartmentOwnerTableModel
+from tablemodels.TenantTableModel import TenantTableModel
 
 tr = QCoreApplication.translate
 # Name!, Last Name!, Phone!, Mail!, Parents' Address, Parents' Phone, Note [text field]
@@ -38,13 +39,18 @@ class ApartmentPage(CustomWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle(tr('ApartmentPage - Title', 'Apartment'))
+        
         self._next_page = None
         self._previous_page = None
 
+        self._next_page_tenant = None
+        self._previous_page_tenant = None
+
         self.__init_UI()
 
-        # self.update_data()
-        self.table_view.resizeColumnsToContents()
+        self.update_data()
+        self.update_data_tenant()
+        # self.table_view.resizeColumnsToContents()
 
     def __init_UI(self):
         self.setObjectName("Window")
@@ -172,23 +178,23 @@ class ApartmentPage(CustomWindow):
         self.table_view_tenant.hideColumn(0)
         self.table_view_tenant.setMinimumHeight(100)
 
-        button_next_tenant = QPushButton(icon=QIcon('data/arrow-long-right.svg'), parent=self)
-        button_next_tenant.setObjectName('IconButton')
-        button_next_tenant.setIconSize(QSize(24, 24))
-        button_next_tenant.clicked.connect(self.next_page_owner)
-        button_next_tenant.setDisabled(True)
+        self.button_next_tenant = QPushButton(icon=QIcon('data/arrow-long-right.svg'), parent=self)
+        self.button_next_tenant.setObjectName('IconButton')
+        self.button_next_tenant.setIconSize(QSize(24, 24))
+        self.button_next_tenant.clicked.connect(self.next_page_tenant)
+        self.button_next_tenant.setDisabled(True)
 
-        button_previous_tenant = QPushButton(icon=QIcon('data/arrow-long-left.svg'), parent=self)
-        button_previous_tenant.setObjectName('IconButton')
-        button_previous_tenant.setIconSize(QSize(24, 24))
-        button_previous_tenant.clicked.connect(self.next_page_owner)
-        button_previous_tenant.setDisabled(True)
+        self.button_previous_tenant = QPushButton(icon=QIcon('data/arrow-long-left.svg'), parent=self)
+        self.button_previous_tenant.setObjectName('IconButton')
+        self.button_previous_tenant.setIconSize(QSize(24, 24))
+        self.button_previous_tenant.clicked.connect(self.previous_page_tenant)
+        self.button_previous_tenant.setDisabled(True)
 
         layout_tenant.addWidget(label, 0, 0, 1, 3)
         layout_tenant.addWidget(InputWrapper(tr('Widgets - Search', 'Search'), self.search_tenant), 1, 0, 1, 3)
         layout_tenant.addWidget(self.table_view_tenant, 2, 0, 1, 3)
-        layout_tenant.addWidget(button_previous_tenant, 3, 0, 1, 1)
-        layout_tenant.addWidget(button_next_tenant, 3, 2, 1, 1)
+        layout_tenant.addWidget(self.button_previous_tenant, 3, 0, 1, 1)
+        layout_tenant.addWidget(self.button_next_tenant, 3, 2, 1, 1)
 
         self.owner_frame.setLayout(layout_tenant)
         # owner_frame end
@@ -275,6 +281,26 @@ class ApartmentPage(CustomWindow):
             else:
                 self.button_next.setDisabled(False)
                 self._next_page = data['next']
+    
+    def update_data_tenant(self, final_url: str = '0\n'):
+        search = self.search.text()
+
+        success, data = TenantApi.tenant_list(search, final_url)
+        if success:
+            self.table_model_tenant = TenantTableModel(data['results'])
+            self.table_view_tenant.setModel(self.table_model_tenant)
+
+            if (data['previous']) is None:
+                self.button_previous_tenant.setDisabled(True)
+            else:
+                self.button_previous_tenant.setDisabled(False)
+                self._previous_page_tenant = data['previous']
+            
+            if data['next'] is None:
+                self.button_next_tenant.setDisabled(True)
+            else:
+                self.button_next_tenant.setDisabled(False)
+                self._next_page_tenant = data['next']
 
     def detail_clicked(self):
         self.panel_detail.setVisible(not self.panel_detail.isVisible())
@@ -285,22 +311,35 @@ class ApartmentPage(CustomWindow):
     def previous_page(self):
         self.update_data(final_url=self._previous_page)
 
-    def next_page_owner(self):
-        self
+    def next_page_tenant(self):
+        self.update_data(final_url=self._next_page_tenant)
+
+    def previous_page_tenant(self):
+        self.update_data(final_url=self._previous_page_tenant)
 
     def save(self):
-        # data = {
-        #     'first_name': self.first_name.text(),
-        #     'last_name': self.last_name.text(),
-        #     'phone': self.phone.text(),
-        #     'mail': self.mail.text(),
-        #     'parent_address': self.parent_address.text(),
-        #     'parent_phone': self.parent_phone.text(),
-        #     'note': self.note.toPlainText()
-        # }
-        if not ApartmentApi.apartment_save(None):
+        data = {
+            'unique_identifier': self.identifier.text(),
+            'name': self.name.text(),
+            'address': self.address.text(),
+            'city': self.city.text(),
+            'rooms': self.rooms.text(),
+            'apartment_area': self.area.text(),
+            'floor': self.floor.text(),
+            'beds': self.beds.text(),
+            'owner': self.owner.text(),
+            'note': self.note.toPlainText()
+        }
+        success, new_apartment = ApartmentApi.create_apartment(data)
+        if not success:
             dialog = Dialog(tr('ApartmentPage - Error title', 'Save error'),
                             tr('ApartmentPage - Error text', 'An error occurred while updating data!'),
+                            'error')
+            # if dialog.is_accepted:
+            #     self.SignalClose.emit()
+        else:
+            dialog = Dialog(tr('ApartmentPage - Success title', 'Save success'),
+                            tr('ApartmentPage - Success text', 'Save Success'),
                             'error')
             if dialog.is_accepted:
                 self.SignalClose.emit()

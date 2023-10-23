@@ -40,7 +40,7 @@ class TenantListPage(CustomWindow):
         self.__init_UI()
 
         self.update_data()
-        self.table_view.resizeColumnsToContents()
+        # self.table_view.resizeColumnsToContents()
 
     def __init_UI(self):
         self.setObjectName("Window")
@@ -94,6 +94,7 @@ class TenantListPage(CustomWindow):
 
         self.button_new_tenant = QPushButton(tr('Widgets - New Tenant', 'New Tenant'), self)
         self.button_new_tenant.setObjectName('LightBlueButton')
+        self.button_new_tenant.clicked.connect(self.new_tenant_click)
         self.button_tasks_reminders = QPushButton(tr('Widgets - Tasks and Reminders', 'Tasks and Reminders'), self)
         self.button_tasks_reminders.setObjectName('LightBlueButton')
         self.button_reports = QPushButton(tr('Widgets - Reports', 'Reports'), self)
@@ -129,9 +130,12 @@ class TenantListPage(CustomWindow):
         self.widget.setLayout(layout)
 
     def table_click(self, index: QModelIndex):
-        self.Signal.emit({'window': 'tenantList', 'id': self.table_model._data[index.row()]['id']})
+        self.Signal.emit({'window': 'tenant', 'id': self.table_model._data[index.row()]['id']})
 
-    def update_data(self, final_url: str = 0):
+    def new_tenant_click(self):
+        self.Signal.emit({'window': 'tenant'})
+
+    def update_data(self, final_url: str = '1\n'):
         search = self.search.text()
 
         success, data = api.tenant_list(search, final_url)
