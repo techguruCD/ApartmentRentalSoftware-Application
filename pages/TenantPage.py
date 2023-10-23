@@ -104,10 +104,12 @@ class TenantPage(CustomWindow):
         }
         success, new_tenant = api.create_tenant(data)
         if not success:
-            dialog = Dialog(tr('TenantPage - Error title', 'Save error'),
+            Dialog(tr('TenantPage - Error title', 'Save error'),
                             tr('TenantPage - Error text', 'An error occurred while updating data!'),
                             'error')
-            # if dialog.is_accepted:
-            #     self.SignalClose.emit()
+        else:
+            Dialog(tr('TenantPage - Success title', 'Save success'),
+                            tr('TenantPage - Success text', 'Tenant Created'),
+                            'success')
     def cancel(self):
         self.SignalClose.emit()
