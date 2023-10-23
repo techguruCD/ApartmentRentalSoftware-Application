@@ -26,7 +26,7 @@ class RentPaymentsPage(CustomWindow):
         self.table_view.resizeColumnsToContents()
 
         self.show()
-    
+
     def __init_UI(self):
         self.setObjectName('Window')
 
@@ -68,7 +68,7 @@ class RentPaymentsPage(CustomWindow):
         button_cancel.setObjectName('DialogButton')
         button_cancel.clicked.connect(self.cancel)
 
-        layout.addWidget(InputWrapper(tr('Widgets - Search', 'Search'), self.search), 0, 0, 1, 5)
+        layout.addWidget(InputWrapper(tr('Widgets - Search', 'Search'), self.search), 0, 0, 1, 5, alignment=QtCore.Qt.AlignmentFlag.AlignTop)
         layout.addWidget(self.table_view, 1, 0, 1, 5)
         layout.addWidget(self.button_previous, 2, 0)
         layout.addWidget(self.button_next, 2, 4)
@@ -96,19 +96,19 @@ class RentPaymentsPage(CustomWindow):
             else:
                 self.button_previous.setDisabled(False)
                 self._previous_page = data['previous']
-            
+
             if data['next'] is None:
                 self.button_next.setDisabled(True)
             else:
                 self.button_next.setDisabled(False)
                 self._next_page = data['next']
-            
+
     def next_page(self):
         self.update_data(final_url=self._next_page)
 
     def previous_page(self):
         self.update_data(final_url=self._previous_page)
-    
+
     def save(self):
         for transaction in filter(lambda row: row['changed'], self.table_model._data):
             if not TransactionApi.update_transaction(transaction):
@@ -116,8 +116,8 @@ class RentPaymentsPage(CustomWindow):
                                 tr('Dialog - Error text', 'An error occurred while updating data!'),
                                 'error')
                 if dialog.is_accepted:
-                    self.SignalClose.emit()
-        self.SignalClose.emit()
+                    self.close()
+        self.close()
 
     def cancel(self):
-        self.SignalClose.emit()
+        self.close()

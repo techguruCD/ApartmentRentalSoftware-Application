@@ -31,6 +31,7 @@ from widgets.elements import InputWrapper, CustomWindow
 from widgets.dialogs import Dialog
 from tablemodels.TenantTableModel import TenantTableModel
 from tablemodels.ApartmentTableModel import ApartmentTableModel
+from tablemodels.RentPaymentsTableModel import RentPaymentTableModel
 import datetime
 
 tr = QCoreApplication.translate
