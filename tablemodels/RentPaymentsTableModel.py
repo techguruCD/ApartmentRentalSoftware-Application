@@ -4,9 +4,10 @@ from PySide6 import (
     QtWidgets
 )
 from settings import colors
+import datetime
 tr = QtCore.QCoreApplication.translate
 
-class UtilityPaymentTableModel(QtCore.QAbstractTableModel):
+class RentPaymentsTableModel(QtCore.QAbstractTableModel):
     def __init__(self, data) -> None:
         super().__init__()
         self._data = data
@@ -32,13 +33,13 @@ class UtilityPaymentTableModel(QtCore.QAbstractTableModel):
                 case 1: # paid [checkbox]
                     return 'Paid'
                 case 2: # month
-                    return self._data[row]['month']
+                    return datetime.datetime.fromisoformat(self._data[row]['date']).strftime('%m')
                 case 3: # amount
                     return self._data[row]['amount']
                 case 4: # Tenant's first and last name
-                    return self._data[row]['tenant']['first_name'] + ' ' + self._data[row]['tenant']['last_name']
+                    return self._data[row]['lease_contract']['tenant']['first_name'] + ' ' + self._data[row]['lease_contract']['tenant']['last_name']
                 case 5: # apartment name
-                    return self._data[row]['apartment']['name'] + ' ' + self._data[row]['apartment']['unique_identifier']
+                    return self._data[row]['lease_contract']['apartment']['name'] + ' ' + self._data[row]['lease_contract']['apartment']['unique_identifier']
         
         if role == QtCore.Qt.ItemDataRole.CheckStateRole:
             if index.column() == 1:
@@ -55,21 +56,21 @@ class UtilityPaymentTableModel(QtCore.QAbstractTableModel):
                 return QtGui.QColor(colors['table_color_2'])
 
     def headerData(self, section, orientation, role):
-        if role == QtCore.Qt.ItemDataRole.DisplayRole:
+        if role == QtCore.Qt.DisplayRole:
             if orientation == QtCore.Qt.Orientation.Horizontal:
                 match section:
                     case 0:
                         return 'id'
                     case 1:
-                        return tr('UtilityPaymentTableModel - Paid', 'Paid')
+                        return tr('RentPaymentTableModel - Paid', 'Paid')
                     case 2:
-                        return tr('UtilityPaymentTableModel - Month', 'Month')
+                        return tr('RentPaymentTableModel - Month', 'Month')
                     case 3:
-                        return tr('UtilityPaymentTableModel - Amount', 'Amount')
+                        return tr('RentPaymentTableModel - Amount', 'Amount')
                     case 4:
-                        return tr('UtilityPaymentTableModel - Tenant', 'Tenant')
+                        return tr('RentPaymentTableModel - Tenant', 'Tenant')
                     case 5:
-                        return tr('UtilityPaymentTableModel - Apartment name', 'Apartment name')
+                        return tr('RentPaymentTableModel - Apartment name', 'Apartment name')
         
             if orientation == QtCore.Qt.Orientation.Vertical:
                 return str(section + 1)

@@ -4,20 +4,21 @@
 from peewee import *
 import uuid
 import datetime
-
+from enum import StrEnum
 database = SqliteDatabase('database.sqlite3')
 
-TRANSACTION_CATEGORIES = [
-    'rent_payment',
-    'utility_payment',
-    'other',
-]
+class TRANSACTION_CATEGORIES(StrEnum):
+    rent_payment = 'rent_payment'
+    utility_bills_payment = 'utility_bills_payment'
+    other = 'other'
 
-TRANSACTION_TYPES = [
-    'income',
-    'expense',
-]
+class TRANSACTION_TYPES(StrEnum):
+    income = 'income'
+    expense = 'expense'
 
+class TENANT_STATUS(StrEnum):
+    active = 'active'
+    inactive = 'inactive'
 
 def get_notification_date(object) -> str:
     if object.dates.exists():
@@ -32,6 +33,19 @@ def get_notification_date(object) -> str:
                 return date.strftime("%Y-%m-%d %H:%M")
 
     return '-'
+
+def get_tenant_status(object) -> str:
+    today = datetime.date.today()
+    active_lease_contract = LeaseContract.select().where(
+        (LeaseContract.tenant == object) &
+        (LeaseContract.start_date <= today) &
+        (LeaseContract.end_date >= today)
+        )
+
+    if active_lease_contract.exists():
+        return TENANT_STATUS.active
+    return TENANT_STATUS.inactive
+
 
 def to_isoformat(date) -> str:
     if isinstance(date, str):
@@ -70,6 +84,7 @@ class Tenant(BaseModel):
                 'parents_address': tenant_object.parents_address,
                 'parents_phone': tenant_object.parents_phone,
                 'note': tenant_object.note,
+                'status': get_tenant_status(tenant_object),
             }
         return None
 
