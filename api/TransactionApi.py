@@ -11,7 +11,7 @@ from peewee import JOIN
 import settings
 
 
-def _filter(search, transaction_type, queryset):
+def _filter(search, transaction_type, category, queryset):
     if search not in (None, 'None'):
         search_terms = [term.strip() for term in search.split(settings.SEARCH_DELIMETER)]
         combined_query = None
@@ -45,13 +45,16 @@ def _filter(search, transaction_type, queryset):
             combined_query = term_query if combined_query is None else combined_query | term_query
 
         queryset = queryset.where(combined_query)
-    
+
     if transaction_type != 'All':
         queryset = queryset.where(Transaction.transaction_type == transaction_type)
 
+    if category not in (None, 'None'):
+        queryset = queryset.where(Transaction.category == category)
+
     return queryset.distinct()
 
-def transaction_list(search: str = None, transaction_type: str = 'All', final_url: str = None) -> tuple[bool, dict | None]:
+def transaction_list(search: str = None, transaction_type: str = 'All', category: str = None, final_url: str = None) -> tuple[bool, dict | None]:
     queryset = (Transaction.select()
                 .join(LeaseContract, JOIN.LEFT_OUTER, on=(Transaction.lease_contract == LeaseContract.id))
                 .join(UtilityBills, JOIN.LEFT_OUTER, on=(Transaction.utility_bills == UtilityBills.id))
@@ -62,24 +65,24 @@ def transaction_list(search: str = None, transaction_type: str = 'All', final_ur
     page, previous_page, next_page = 1, None, None
 
     if final_url is not None:
-        page, search, transaction_type = final_url.split('\n')
+        page, search, transaction_type, category = final_url.split('\n')
         page = int(page)
 
-        queryset = _filter(search, transaction_type, queryset)
+        queryset = _filter(search, transaction_type, category, queryset)
 
         pages = total_pages(queryset.count(), settings.PAGINATION_PAGE_SIZE)
 
         if pages > 1 and page > 1:
-            previous_page = f'{page - 1}\n{search}\n{transaction_type}'
+            previous_page = f'{page - 1}\n{search}\n{transaction_type}\n{category}'
 
         if pages > 1 and page < pages:
-            next_page = f'{page + 1}\n{search}\n{transaction_type}'
+            next_page = f'{page + 1}\n{search}\n{transaction_type}\n{category}'
 
     else:
-        queryset = _filter(search, transaction_type, queryset)
+        queryset = _filter(search, transaction_type, category, queryset)
 
         if total_pages(queryset.count(), settings.PAGINATION_PAGE_SIZE) > 1:
-            next_page = f'2\n{search}\n{transaction_type}'
+            next_page = f'2\n{search}\n{transaction_type}\n{category}'
 
     return True, {
         'next': next_page,
