@@ -14,6 +14,7 @@ from PySide6.QtWidgets import (
     QWidget,
     QFrame,
     QScrollArea,
+    QSpinBox,
     QLineEdit,
     QPlainTextEdit,
     QTableView,
@@ -34,24 +35,22 @@ from tablemodels.TransactionTableModel import TransactionTableModel
 from tablemodels.ApartmentOwnerTableModel import ApartmentOwnerTableModel
 
 tr = QCoreApplication.translate
-# Name!, Last Name!, Phone!, Mail!, Parents' Address, Parents' Phone, Note [text field]
 class ApartmentPage(CustomWindow):
-    def __init__(self, id: int = 1):
+    def __init__(self, id: int = None):
         super().__init__()
         self.setWindowTitle(tr('ApartmentPage - Title', 'Apartment'))
 
         self.__owner = None
         self.__id = id
         
-        self._next_page = None
-        self._previous_page = None
+        self._next_page_transaction = None
+        self._previous_page_transaction = None
 
         self._next_page_owner = None
         self._previous_page_owner = None
 
         self.__init_UI()
 
-        self.update_data()
         self.update_data_owner()
         self.table_view_transaction.resizeColumnsToContents()
 
@@ -60,6 +59,7 @@ class ApartmentPage(CustomWindow):
             self.owner.setText(self.__owner['first_name'] + ' ' + self.__owner['last_name'])
             self.owner_frame.hide()
             self.owner_wrapper.show()
+            self.update_data_transaction()
         else:
             self.identifier.setText(str(uuid.uuid4()))
 
@@ -145,9 +145,9 @@ class ApartmentPage(CustomWindow):
         layout_panel_1.addWidget(InputWrapper(tr('Widgets - Address', 'Address'), self.address))
         layout_panel_1.addWidget(InputWrapper(tr('Widgets - City', 'City'), self.city))
 
-        self.rooms = QLineEdit(self)
+        self.rooms = QSpinBox(self)
         self.rooms.setObjectName('Input')
-        self.area = QLineEdit(self)
+        self.area = QSpinBox(self)
         self.area.setObjectName('Input')
         layout_panel_2 = QHBoxLayout()
         layout_panel_2.setContentsMargins(0, 0, 0, 0)
@@ -155,9 +155,9 @@ class ApartmentPage(CustomWindow):
         layout_panel_2.addWidget(InputWrapper(tr('Widgets - Rooms', 'Rooms'), self.rooms))
         layout_panel_2.addWidget(InputWrapper(tr('Widgets - Area', 'Area'), self.area))
 
-        self.floor = QLineEdit(self)
+        self.floor = QSpinBox(self)
         self.floor.setObjectName('Input')
-        self.beds = QLineEdit(self)
+        self.beds = QSpinBox(self)
         self.beds.setObjectName('Input')
         layout_panel_3 = QHBoxLayout()
         layout_panel_3.setContentsMargins(0, 0, 0, 0)
@@ -284,7 +284,7 @@ class ApartmentPage(CustomWindow):
         self.__owner = self.table_model_owner._data[index.row()]
         self.owner.setText(self.__owner['first_name'] + ' ' + self.__owner['last_name'])
 
-    def update_data(self, final_url: str = 0):
+    def update_data_transaction(self, final_url: str = 0):
         search = self.search_transaction.text()
 
         success, data = TransactionApi.transaction_list(search, final_url)
@@ -296,13 +296,13 @@ class ApartmentPage(CustomWindow):
                 self.button_previous.setDisabled(True)
             else:
                 self.button_previous.setDisabled(False)
-                self._previous_page = data['previous']
+                self._previous_page_transaction = data['previous']
             
             if data['next'] is None:
                 self.button_next.setDisabled(True)
             else:
                 self.button_next.setDisabled(False)
-                self._next_page = data['next']
+                self._next_page_transaction = data['next']
     
     def update_data_owner(self, final_url: str = '0\n'):
         search = self.search_transaction.text()
@@ -328,16 +328,16 @@ class ApartmentPage(CustomWindow):
         self.panel_detail.setVisible(not self.panel_detail.isVisible())
     
     def next_page(self):
-        self.update_data(final_url=self._previous_page)
+        self.update_data_transaction(final_url=self._next_page_transaction)
     
     def previous_page(self):
-        self.update_data(final_url=self._previous_page)
+        self.update_data_transaction(final_url=self._previous_page_transaction)
 
     def next_page_owner(self):
-        self.update_data(final_url=self._next_page_owner)
+        self.update_data_transaction(final_url=self._next_page_owner)
 
     def previous_page_owner(self):
-        self.update_data(final_url=self._previous_page_owner)
+        self.update_data_transaction(final_url=self._previous_page_owner)
 
     def save(self):
         data = {
@@ -345,10 +345,10 @@ class ApartmentPage(CustomWindow):
             'name': self.name.text(),
             'address': self.address.text(),
             'city': self.city.text(),
-            'rooms': self.rooms.text(),
-            'apartment_area': self.area.text(),
-            'floor': self.floor.text(),
-            'beds': self.beds.text(),
+            'rooms': self.rooms.value(),
+            'apartment_area': self.area.value(),
+            'floor': self.floor.value(),
+            'beds': self.beds.value(),
             'owner': self.__owner,
             'note': self.note.toPlainText()
         }
@@ -378,10 +378,10 @@ class ApartmentPage(CustomWindow):
             self.name.setText(apartment['name'])
             self.address.setText(apartment['address'])
             self.city.setText(apartment['city'])
-            self.rooms.setText(apartment['rooms'])
-            self.area.setText(apartment['apartment_area'])
-            self.floor.setText(apartment['floor'])
-            self.beds.setText(apartment['beds'])
+            self.rooms.setValue(apartment['rooms'])
+            self.area.setValue(apartment['apartment_area'])
+            self.floor.setValue(apartment['floor'])
+            self.beds.setValue(apartment['beds'])
             self.note.setPlainText(apartment['note'])
             self.__owner = apartment['owner']
         else:
