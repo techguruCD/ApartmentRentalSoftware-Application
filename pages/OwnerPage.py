@@ -1,4 +1,3 @@
-from typing import Optional
 from PySide6.QtCore import (
     QCoreApplication,
     QSize
@@ -27,10 +26,17 @@ from widgets.dialogs import Dialog
 tr = QCoreApplication.translate
 # First name!, Last name!, Phone!, Email!, Note[Text field]
 class OwnerPage(CustomWindow):
-    def __init__(self):
+    def __init__(self, id: int = None):
         super().__init__()
+        self.__id = id
+
         self.setWindowTitle(tr('OwnerPage - Title', 'Apartment Owner'))
+        
         self.__init_UI()
+
+        if self.__id is not None:
+            self.__load_owner()
+
     def __init_UI(self):
         self.setObjectName("Window")
 
@@ -41,6 +47,7 @@ class OwnerPage(CustomWindow):
         self.button_back = QPushButton(icon=QIcon('data/arrow-long-left.svg'), parent=self)
         self.button_back.setObjectName('IconButton')
         self.button_back.setIconSize(QSize(24, 24))
+        self.button_back.clicked.connect(self.cancel)
         back_layout = QHBoxLayout()
         back_layout.addWidget(self.button_back)
         back_layout.addSpacerItem(QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum))
@@ -78,6 +85,8 @@ class OwnerPage(CustomWindow):
         layout.addWidget(button_save, 4, 0, 1, 1)
         layout.addWidget(button_cancel, 4, 1, 1, 1)
 
+        layout.setRowStretch(3, 1)
+
         self.widget.setLayout(layout)
     
     def save(self):
@@ -88,17 +97,31 @@ class OwnerPage(CustomWindow):
             'email': self.email.text(),
             'note': self.note.toPlainText()
         }
-        success, new_owner = api.create_owner(data)
+
+        success, owner = api.update_owner(data) if self.__id != None else api.create_owner(data)
         if not success:
             dialog = Dialog(tr('Dialog - Error title', 'Update error'),
                             tr('Dialog - Error text', 'An error occurred while updating data!'),
                             'error')
-            # if dialog.is_accepted:
-            #     self.SignalClose.emit()
         else:
             dialog = Dialog(tr('OwnerPage - Success title', 'Save success'),
                             tr('OwnerPage - Success text', 'Save success'),
                             'success')
+            self.cancel()
 
     def cancel(self):
-        self.SignalClose.emit()
+        self.Signal.emit({'window': 'back'})
+
+    def __load_owner(self):
+        success, owner = api.get_owner(self.__id)
+        if success:
+            print(owner)
+            self.first_name.setText(owner['first_name'])
+            self.last_name.setText(owner['last_name'])
+            self.phone.setText(owner['phone'])
+            self.email.setText(owner['email'])
+            self.note.setPlainText(owner['note'])
+        else:
+            Dialog(tr('Dialog - Error title', 'Update error'),
+                tr('Dialog - Error text', 'An error occurred while load data!'),
+                'error')
