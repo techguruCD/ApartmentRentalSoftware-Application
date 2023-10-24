@@ -1,11 +1,14 @@
 from models import (
     Tenant,
+    LeaseContract,
+    TENANT_STATUS
 )
 from tools import total_pages
+import datetime
 import settings
 
 
-def _filter(search, queryset):
+def _filter(search, status, queryset):
     if search not in (None, 'None'):
         search_terms = [term.strip() for term in search.split(settings.SEARCH_DELIMETER)]
         combined_query = None
@@ -24,31 +27,50 @@ def _filter(search, queryset):
 
         queryset = queryset.where(combined_query)
 
+    today = datetime.date.today()
+
+    if status == TENANT_STATUS.active:
+        subquery = LeaseContract.select().where(
+            (LeaseContract.tenant == Tenant.id) & 
+            (LeaseContract.end_date >= today)
+        )
+        queryset = queryset.join(LeaseContract, on=(Tenant.id == LeaseContract.tenant)).where(
+            LeaseContract.id << subquery
+        )
+    elif status == TENANT_STATUS.inactive:
+        subquery = LeaseContract.select().where(
+            (LeaseContract.tenant == Tenant.id) & 
+            (LeaseContract.end_date < today)
+        )
+        queryset = queryset.join(LeaseContract, on=(Tenant.id == LeaseContract.tenant)).where(
+            LeaseContract.id << subquery
+        )
+
     return queryset.distinct()
 
-def tenant_list(search: str = None, final_url: str = None) -> tuple[bool, dict | None]:
+def tenant_list(search: str = None, status: str = None, final_url: str = None) -> tuple[bool, dict | None]:
     queryset = Tenant.select()
     page, previous_page, next_page = 1, None, None
 
     if final_url is not None:
-        page, search = final_url.split('\n')
+        page, search, status = final_url.split('\n')
         page = int(page)
 
-        queryset = _filter(search, queryset)
+        queryset = _filter(search, status, queryset)
 
         pages = total_pages(queryset.count(), settings.PAGINATION_PAGE_SIZE)
 
         if pages > 1 and page > 1:
-            previous_page = f'{page - 1}\n{search}'
+            previous_page = f'{page - 1}\n{search}\n{status}'
 
         if pages > 1 and page < pages:
-            next_page = f'{page + 1}\n{search}'
+            next_page = f'{page + 1}\n{search}\n{status}'
 
     else:
-        queryset = _filter(search, queryset)
+        queryset = _filter(search, status, queryset)
 
         if total_pages(queryset.count(), settings.PAGINATION_PAGE_SIZE) > 1:
-            next_page = f'2\n{search}'
+            next_page = f'2\n{search}\n{status}'
 
     return True, {
         'next': next_page,
