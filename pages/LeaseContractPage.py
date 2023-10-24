@@ -238,8 +238,8 @@ class LeaseContractPage(CustomWindow):
         #     'note': self.note.toPlainText()
         # }
         if not LeaseContractApi.create_lease_contract(None):
-            dialog = Dialog(tr('LeaseContractPage - Error title', 'Save error'),
-                            tr('LeaseContractPage - Error text', 'An error occurred while updating data!'),
+            dialog = Dialog(tr('Dialog - Error title', 'Update error'),
+                            tr('Dialog - Error text', 'An error occurred while updating data!'),
                             'error')
             if dialog.is_accepted:
                 self.SignalClose.emit()

@@ -332,15 +332,15 @@ class ApartmentPage(CustomWindow):
         }
         success, new_apartment = ApartmentApi.create_apartment(data)
         if not success:
-            dialog = Dialog(tr('ApartmentPage - Error title', 'Save error'),
-                            tr('ApartmentPage - Error text', 'An error occurred while updating data!'),
+            dialog = Dialog(tr('Dialog - Error title', 'Update error'),
+                            tr('Dialog - Error text', 'An error occurred while updating data!'),
                             'error')
             # if dialog.is_accepted:
             #     self.SignalClose.emit()
         else:
             dialog = Dialog(tr('ApartmentPage - Success title', 'Save success'),
                             tr('ApartmentPage - Success text', 'Save Success'),
-                            'error')
+                            'success')
             self.cancel()
 
     def cancel(self):
