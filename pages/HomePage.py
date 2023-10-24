@@ -59,10 +59,7 @@ class HomePage(CustomWindow):
         self.button_back.setIconSize(QSize(24, 24))
         layout_back = QHBoxLayout()
         layout_back.addWidget(self.button_back)
-        layout_back.addSpacerItem(QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum))
-
-        # self.label_title = QLabel(tr('TenantListPage - Title', 'Tenant List'), self)
-        # self.label_title.setObjectName('TitleLabel')
+        layout_back.addSpacerItem(QSpacerItem(1, 1, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum))
 
         self.search = QLineEdit(self)
         self.search.setObjectName('Input')
@@ -97,6 +94,7 @@ class HomePage(CustomWindow):
         self.button_utility_fee_table.setObjectName('LightBlueButton')
         self.button_add_appartment = QPushButton(tr('Buttons - Add Apartment', 'Add Apartment'), self)
         self.button_add_appartment.setObjectName('LightBlueButton')
+        self.button_add_appartment.clicked.connect(self.button_add_appartment_click)
         self.button_seal = QPushButton(tr('Buttons - Seal', 'Seal'), self)
         self.button_seal.setObjectName('GreenButton')
         self.button_export = QPushButton(tr('Buttons - Export', 'Export'), self)
@@ -131,6 +129,9 @@ class HomePage(CustomWindow):
 
     def table_click(self, index: QModelIndex):
         self.Signal.emit({'window': 'apartment', 'id': self.table_model._data[index.row()]['id']})
+
+    def button_add_appartment_click(self):
+        self.Signal.emit({'window': 'apartment'})
 
     def _update_data_signal_handler(self):
         self.update_data(self._current_page)

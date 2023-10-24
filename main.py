@@ -37,7 +37,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.show()
 
-
     def _signal_handler(self, params):
         window_name = params.pop('window', None)
         if window_name is not None:

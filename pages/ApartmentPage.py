@@ -73,6 +73,7 @@ class ApartmentPage(CustomWindow):
         self.button_back = QPushButton(icon=QIcon('data/arrow-long-left.svg'), parent=self)
         self.button_back.setObjectName('IconButton')
         self.button_back.setIconSize(QSize(24, 24))
+        self.button_back.clicked.connect(self.cancel)
         layout_back = QHBoxLayout()
         layout_back.addWidget(self.button_back)
         layout_back.addSpacerItem(QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum))
