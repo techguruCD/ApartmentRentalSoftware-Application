@@ -14,3 +14,5 @@ from .TenantListPage import TenantListPage
 from .RentPaymentsPage import RentPaymentsPage
 from .UtilityBillsPaymentsPage import UtilityBillsPaymentsPage
 from .ApartmentPage import ApartmentPage
+from .OwnerPage import OwnerPage
+from .LeaseContractPage import LeaseContractPage

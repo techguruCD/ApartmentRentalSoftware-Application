@@ -27,12 +27,12 @@ class ApartmentOwnerTableModel(QtCore.QAbstractTableModel):
             match index.column():
                 case 0: # id
                     return self._data[row]['id']
-                case 1: # apartment name
-                    return self._data[row]['apartment']['name']
-                case 2: # phone
+                # case 1: # apartment name
+                #     return self._data[row]['apartment']['name']
+                case 1: # phone
                     return self._data[row]['phone']
-                case 3: # owner name
-                    return self._data[row]['first_name'] + ' ' + self._data[row]['last_name'],
+                case 2: # owner name
+                    return self._data[row]['first_name'] + ' ' + self._data[row]['last_name']
 
         # change colors
         if role == QtCore.Qt.ItemDataRole.BackgroundRole:
@@ -47,11 +47,11 @@ class ApartmentOwnerTableModel(QtCore.QAbstractTableModel):
                 match section:
                     case 0:
                         return 'id'
+                    # case 1:
+                    #     return tr('ApartmentOwnerTableModel - Apartment name', 'Apartment name')
                     case 1:
-                        return tr('ApartmentOwnerTableModel - Apartment name', 'Apartment name')
-                    case 2:
                         return tr('ApartmentOwnerTableModel - Phone', 'Phone')
-                    case 3:
+                    case 2:
                         return tr('ApartmentOwnerTableModel - Owner name', 'Owner name')
         
             if orientation == QtCore.Qt.Vertical:
@@ -61,4 +61,4 @@ class ApartmentOwnerTableModel(QtCore.QAbstractTableModel):
         return len(self._data)
 
     def columnCount(self, index):
-        return 4
+        return 3

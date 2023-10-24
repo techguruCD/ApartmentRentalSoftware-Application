@@ -1,4 +1,5 @@
 from typing import Optional
+import uuid
 import PySide6.QtCore
 from PySide6.QtCore import (
     QCoreApplication,
@@ -35,9 +36,12 @@ from tablemodels.ApartmentOwnerTableModel import ApartmentOwnerTableModel
 tr = QCoreApplication.translate
 # Name!, Last Name!, Phone!, Mail!, Parents' Address, Parents' Phone, Note [text field]
 class ApartmentPage(CustomWindow):
-    def __init__(self):
+    def __init__(self, id: int = 1):
         super().__init__()
         self.setWindowTitle(tr('ApartmentPage - Title', 'Apartment'))
+
+        self.__owner = None
+        self.__id = id
         
         self._next_page = None
         self._previous_page = None
@@ -49,7 +53,15 @@ class ApartmentPage(CustomWindow):
 
         self.update_data()
         self.update_data_owner()
-        # self.table_view_transaction.resizeColumnsToContents()
+        self.table_view_transaction.resizeColumnsToContents()
+
+        if self.__id is not None:
+            self.__load_apartment()
+            self.owner.setText(self.__owner['first_name'] + ' ' + self.__owner['last_name'])
+            self.owner_frame.hide()
+            self.owner_wrapper.show()
+        else:
+            self.identifier.setText(str(uuid.uuid4()))
 
     def __init_UI(self):
         self.setObjectName("Window")
@@ -153,8 +165,10 @@ class ApartmentPage(CustomWindow):
         layout_panel_3.addWidget(InputWrapper(tr('Widgets - Floor', 'Floor'), self.floor))
         layout_panel_3.addWidget(InputWrapper(tr('Widgets - Beds', 'Beds'), self.beds))
 
-        self.owner = QLineEdit(self)
+        self.owner = QPushButton(self)
         self.owner.setObjectName('Input')
+        self.owner_wrapper = InputWrapper(tr('Widgets - Owner', 'Owner'), self.owner)
+        self.owner_wrapper.hide()
 
         # owner_frame start
         self.owner_frame = QFrame(self)
@@ -175,7 +189,8 @@ class ApartmentPage(CustomWindow):
         self.table_view_owner.setModel(self.table_model_owner)
         self.table_view_owner.hideColumn(0)
         self.table_view_owner.horizontalHeader().setStretchLastSection(True)
-        self.table_view_owner.setMinimumHeight(100)
+        self.table_view_owner.setMinimumHeight(200)
+        self.table_view_owner.doubleClicked.connect(self.table_owner_click)
 
         self.button_next_owner = QPushButton(icon=QIcon('data/arrow-long-right.svg'), parent=self)
         self.button_next_owner.setObjectName('IconButton')
@@ -196,6 +211,8 @@ class ApartmentPage(CustomWindow):
         layout_owner.addWidget(self.button_next_owner, 3, 2, 1, 1)
 
         self.owner_frame.setLayout(layout_owner)
+        self.owner.clicked.connect(self.owner_wrapper.hide)
+        self.owner.clicked.connect(self.owner_frame.show)
         # owner_frame end
         
         self.note = QPlainTextEdit(self)
@@ -206,7 +223,7 @@ class ApartmentPage(CustomWindow):
         layout_panel.addLayout(layout_panel_1)
         layout_panel.addLayout(layout_panel_2)
         layout_panel.addLayout(layout_panel_3)
-        layout_panel.addWidget(InputWrapper(tr('Widgets - Owner', 'Owner'), self.owner))
+        layout_panel.addWidget(self.owner_wrapper)
         layout_panel.addWidget(self.owner_frame)
         layout_panel.addWidget(InputWrapper(tr('Widgets - Note', 'Note'), self.note))
 
@@ -260,6 +277,12 @@ class ApartmentPage(CustomWindow):
 
     def table_click(self, index: QModelIndex):
         self.Signal.emit({'window': 'transaction', 'id': self.table_model_transaction._data[index.row()]['id']})
+
+    def table_owner_click(self, index: QModelIndex):
+        self.owner_frame.hide()
+        self.owner_wrapper.show()
+        self.__owner = self.table_model_owner._data[index.row()]
+        self.owner.setText(self.__owner['first_name'] + ' ' + self.__owner['last_name'])
 
     def update_data(self, final_url: str = 0):
         search = self.search_transaction.text()
@@ -326,10 +349,12 @@ class ApartmentPage(CustomWindow):
             'apartment_area': self.area.text(),
             'floor': self.floor.text(),
             'beds': self.beds.text(),
-            'owner': self.owner.text(),
+            'owner': self.__owner,
             'note': self.note.toPlainText()
         }
-        success, new_apartment = ApartmentApi.create_apartment(data)
+        if self.__id != None:
+            data['id'] = self.__id
+        success, apartment = ApartmentApi.update_apartment(data) if self.__id != None else ApartmentApi.create_apartment(data)
         if not success:
             dialog = Dialog(tr('Dialog - Error title', 'Update error'),
                             tr('Dialog - Error text', 'An error occurred while updating data!'),
@@ -344,3 +369,22 @@ class ApartmentPage(CustomWindow):
 
     def cancel(self):
         self.Signal.emit({'window': 'back'})
+
+    def __load_apartment(self):
+        success, apartment = ApartmentApi.get_apartment(self.__id)
+        if success:
+            print(apartment)
+            self.identifier.setText(apartment['unique_identifier'])
+            self.name.setText(apartment['name'])
+            self.address.setText(apartment['address'])
+            self.city.setText(apartment['city'])
+            self.rooms.setText(apartment['rooms'])
+            self.area.setText(apartment['apartment_area'])
+            self.floor.setText(apartment['floor'])
+            self.beds.setText(apartment['beds'])
+            self.note.setPlainText(apartment['note'])
+            self.__owner = apartment['owner']
+        else:
+            Dialog(tr('Dialog - Error title', 'Update error'),
+                tr('Dialog - Error text', 'An error occurred while load data!'),
+                'error')

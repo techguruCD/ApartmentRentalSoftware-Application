@@ -68,7 +68,7 @@ def apartment_list(search: str = None, final_url: str = None) -> tuple[bool, dic
 
 def get_apartment(id: int) -> tuple[bool, dict | None]:
     try:
-        apartment_object = Apartment.select(Apartment).where(Apartment.id==id).get()
+        apartment_object = Apartment.select(Apartment).where(Apartment.id==1).get()
         
         return True, Apartment._to_dict(apartment_object)
 
@@ -87,7 +87,8 @@ def create_apartment(data: dict) -> tuple[bool, dict | None]:
 
         return True, Apartment._to_dict(apartment_object)
 
-    except Exception:
+    except Exception as e:
+        print(e)
         return False, None
 
 def update_apartment(data: dict) -> tuple[bool, dict | None]:

@@ -13,13 +13,18 @@ from pages import (
     ReminderPage,
     ReminderListPage,
     TaskPage,
-    TaskListPage
+    TaskListPage,
+    ApartmentPage,
+    OwnerPage,
+    LeaseContractPage
 )
 
 import widgets.dialogs as dialogs
+from models import create_tables
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self) -> None:
+        create_tables()
         super().__init__()
 
         self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
@@ -27,7 +32,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.windows_queue = []
 
-        self.set_window('task_list')
+        self.set_window('apartment')
 
         self.show()
 
@@ -72,8 +77,20 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.setCentralWidget(TenantPage(**kwargs))
                 self.setMinimumSize(900, 800)
 
-            case 'tenantList':
+            case 'tenant_list':
                 self.setCentralWidget(TenantListPage(**kwargs))
+                self.setMinimumSize(900, 800)
+
+            case 'owner':
+                self.setCentralWidget(OwnerPage(**kwargs))
+                self.setMinimumSize(900, 800)
+
+            case 'apartment':
+                self.setCentralWidget(ApartmentPage(**kwargs))
+                self.setMinimumSize(900, 800)
+
+            case 'lease_contract':
+                self.setCentralWidget(LeaseContractPage(**kwargs))
                 self.setMinimumSize(900, 800)
 
             case 'back':
