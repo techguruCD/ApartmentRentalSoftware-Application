@@ -138,6 +138,7 @@ class ReminderPage(CustomWindow):
 
         self.lease_contract_search_widget = QtWidgets.QLineEdit()
         self.lease_contract_search_widget.setObjectName('Input')
+        self.lease_contract_search_widget.setPlaceholderText('🔍')
         self.lease_contract_search_widget.textChanged.connect(self._lease_contract_search)
 
         self.lease_contract_search_layout = QtWidgets.QVBoxLayout()
@@ -278,7 +279,7 @@ class ReminderPage(CustomWindow):
                                 tr('Dialog - Error text', 'An error occurred while saving data!'),
                                 'error') 
                 if dialog.is_accepted:
-                    self.close()
+                    self.cancel()
                 return
 
         else:
@@ -288,10 +289,10 @@ class ReminderPage(CustomWindow):
                                 tr('Dialog - Error text', 'An error occurred while updating data!'),
                                 'error') 
                 if dialog.is_accepted:
-                    self.close()
+                    self.cancel()
                 return
 
-        self.close()
+        self.cancel()
 
     def cancel(self):
         self.Signal.emit({'window': 'back'})

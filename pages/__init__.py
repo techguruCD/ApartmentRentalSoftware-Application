@@ -6,7 +6,9 @@
 # from .TransactionPage import TransactionPage
 
 from .TaskPage import TaskPage
+from .TaskListPage import TaskListPage
 from .ReminderPage import ReminderPage
+from .ReminderListPage import ReminderListPage
 from .TenantPage import TenantPage
 from .TenantListPage import TenantListPage
 from .RentPaymentsPage import RentPaymentsPage

@@ -27,7 +27,7 @@ class TaskTableModel(QtCore.QAbstractTableModel):
                 case 3: # text
                     return self._data[row]['text']
                 case 4: # apartment name
-                    return self._data[row]['apartment']['name'] + ' ' + self._data[row]['apartment']['unique_identifier']
+                    return self._data[row]['lease_contract']['apartment']['name'] + ' ' + self._data[row]['lease_contract']['apartment']['unique_identifier']
 
         # change colors
         if role == QtCore.Qt.ItemDataRole.BackgroundRole:
