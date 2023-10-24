@@ -155,6 +155,7 @@ def reminder_list(search: str = None, active: bool = None, final_url: str = None
     return True, {
         'next': next_page,
         'previous': previous_page,
+        'current': f'{page}\n{search}\n{active}',
         'results': [Reminder._to_dict(reminder_object) for reminder_object in queryset.order_by(Reminder.date).paginate(page, settings.PAGINATION_PAGE_SIZE)]
     }
 
@@ -255,6 +256,7 @@ def task_list(search: str = None, active: bool = None, final_url: str = None) ->
     return True, {
         'next': next_page,
         'previous': previous_page,
+        'current': f'{page}\n{search}\n{active}',
         'results': [Task._to_dict(task_object) for task_object in queryset.order_by(Task.date).paginate(page, settings.PAGINATION_PAGE_SIZE)]
     }
 

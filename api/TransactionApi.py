@@ -95,6 +95,7 @@ def transaction_list(search: str = None, transaction_type: str = 'All', category
     return True, {
         'next': next_page,
         'previous': previous_page,
+        'current': f'{page}\n{search}\n{transaction_type}\n{category}\n{paid}',
         'results': [Transaction._to_dict(transaction_object) for transaction_object in queryset.order_by(-Transaction.id).paginate(page, settings.PAGINATION_PAGE_SIZE)]
     }
 
@@ -197,6 +198,7 @@ def rent_payments_list(search: str = None, final_url: str = None) -> tuple[bool,
     return True, {
         'next': next_page,
         'previous': previous_page,
+        'current': f'{page}\n{search}',
         'results': [Transaction._to_dict(transaction_object) for transaction_object in queryset.order_by(Transaction.date).paginate(page, settings.PAGINATION_PAGE_SIZE)]
     }
 
@@ -235,5 +237,6 @@ def utility_bills_payments_list(search: str = None, final_url: str = None) -> tu
     return True, {
         'next': next_page,
         'previous': previous_page,
+        'current': f'{page}\n{search}',
         'results': [Transaction._to_dict(transaction_object) for transaction_object in queryset.order_by(Transaction.date).paginate(page, settings.PAGINATION_PAGE_SIZE)]
     }

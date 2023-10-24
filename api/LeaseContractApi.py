@@ -80,6 +80,7 @@ def lease_contract_list(search: str = None, active: bool = None, final_url: str 
     return True, {
         'next': next_page,
         'previous': previous_page,
+        'current': f'{page}\n{search}\n{active}',
         'results': [LeaseContract._to_dict(lease_contract_object) for lease_contract_object in queryset.order_by(-LeaseContract.id).paginate(page, settings.PAGINATION_PAGE_SIZE)]
     }
 
