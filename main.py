@@ -6,12 +6,14 @@ from PySide6 import (
 tr = QtCore.QCoreApplication.translate
 
 from pages import (
-    TenantListPage,
     TenantPage,
+    TenantListPage,
     UtilityBillsPaymentsPage,
     RentPaymentsPage,
     ReminderPage,
+    ReminderListPage,
     TaskPage,
+    TaskListPage
 )
 
 import widgets.dialogs as dialogs
@@ -32,7 +34,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.windows_queue = []
 
-        self.set_window('task', id=1)
+        self.set_window('task_list')
 
         self.show()
 
@@ -60,10 +62,18 @@ class MainWindow(QtWidgets.QMainWindow):
             case 'reminder':
                 self.setCentralWidget(ReminderPage(**kwargs))
                 self.setMinimumSize(900, 800)
+            
+            case 'reminder_list':
+                self.setCentralWidget(ReminderListPage(**kwargs))
+                self.setMinimumSize(600, 400)
 
             case 'task':
                 self.setCentralWidget(TaskPage(**kwargs))
                 self.setMinimumSize(900, 800)
+
+            case 'task_list':
+                self.setCentralWidget(TaskListPage(**kwargs))
+                self.setMinimumSize(600, 400)
 
             case 'tenant':
                 self.setCentralWidget(TenantPage(**kwargs))
