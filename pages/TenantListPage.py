@@ -65,6 +65,7 @@ class TenantListPage(CustomWindow):
         self.search = QLineEdit(self)
         self.search.setObjectName('Input')
         self.search.setPlaceholderText('🔍')
+        self.search.textChanged.connect(lambda _: self.update_data())
         self.combo_status = QComboBox(self)
         self.combo_status.setObjectName('Input')
         self.combo_status.addItem('All')

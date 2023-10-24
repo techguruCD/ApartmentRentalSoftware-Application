@@ -31,7 +31,8 @@ def tenant_list(search: str = None, final_url: str = None) -> tuple[bool, dict |
     page, previous_page, current_page, next_page = 1, None, final_url, None
 
     if final_url is not None:
-        page, search = final_url.split('\n')
+        # page, search = final_url.split('\n')
+        page, temp = final_url.split('\n')
         page = int(page)
 
         queryset = _filter(search, queryset)
