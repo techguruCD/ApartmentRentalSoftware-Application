@@ -14,14 +14,7 @@ from pages import (
 
 import widgets.dialogs as dialogs
 
-pages = {
-    'tenantList': TenantListPage,
-    'tenant': TenantPage,
-}
-
 class MainWindow(QtWidgets.QMainWindow):
-    pages = []
-    central = None
     def __init__(self) -> None:
         super().__init__()
                 
@@ -32,13 +25,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.set_window('tenantList')
 
         self.show()
-
-    # def onSignal(self, param):
-    #     print(param)
-    #     self.pages.insert(self.pages.__len__(), self.centralWidget())
-    #     central = pages[param['window']]()
-    #     central.connect_control_signals(self)
-    #     self.setCentralWidget(central)
     
     def _signal_handler(self, params):
         window_name = params.pop('window', None)
