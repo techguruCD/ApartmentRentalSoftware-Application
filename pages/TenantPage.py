@@ -109,9 +109,10 @@ class TenantPage(CustomWindow):
             'parents_phone': self.parents_phone.text(),
             'note': self.note.toPlainText()
         }
-        if self.__id is not None:
+        if self.__id != None:
             data['id'] = self.__id
-        success, tenant = api.update_tenant(data)
+        success, tenant = api.update_tenant(data) if self.__id != None else api.create_tenant(data)
+        # success, new_tenant = api.create_tenant(data)
         if not success:
             Dialog(tr('TenantPage - Error title', 'Save error'),
                             tr('TenantPage - Error text', 'An error occurred while updating data!'),
