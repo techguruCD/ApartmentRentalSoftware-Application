@@ -51,6 +51,7 @@ def owner_list(search: str = None, final_url: str = None) -> tuple[bool, dict | 
     return True, {
         'next': next_page,
         'previous': previous_page,
+        'current': f'{page}\n{search}',
         'results': [Owner._to_dict(owner_object) for owner_object in queryset.order_by(Owner.id).paginate(page, settings.PAGINATION_PAGE_SIZE)]
     }
 

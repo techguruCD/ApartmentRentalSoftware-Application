@@ -3,12 +3,18 @@ from PySide6 import(
     QtGui,
     QtWidgets
 )
-from tablemodels.UtilityBillsPaymentsTableModel import UtilityBillsPaymentsTableModel
-from widgets.elements import InputWrapper, CustomWindow
-from widgets.dialogs import Dialog, UtilityBillsDialog
+from widgets.elements import (
+    InputWrapper,
+    CustomWindow,
+)
+from widgets.dialogs import (
+    UtilityBillsDialog,
+    Dialog,
+)
 from api import (
     TransactionApi
 )
+from tablemodels.UtilityBillsPaymentsTableModel import UtilityBillsPaymentsTableModel
 
 tr = QtCore.QCoreApplication.translate
 
@@ -46,7 +52,7 @@ class UtilityBillsPaymentsPage(CustomWindow):
 
         self.table_view.setEditTriggers(QtWidgets.QTableView.EditTrigger.NoEditTriggers)
         self.table_view.setSelectionMode(QtWidgets.QTableView.SelectionMode.NoSelection)
-        self.table_view.doubleClicked.connect(self.table_click)
+        self.table_view.doubleClicked.connect(self.__table_click)
         self.table_view.hideColumn(0)
 
         self.button_next = QtWidgets.QPushButton(icon=QtGui.QIcon('data/arrow-long-right.svg'))
@@ -78,7 +84,7 @@ class UtilityBillsPaymentsPage(CustomWindow):
 
         self.widget.setLayout(layout)
 
-    def table_click(self, index: QtCore.QModelIndex):
+    def __table_click(self, index: QtCore.QModelIndex):
         if index.column() == 3:
             utility_bills = self.table_model._data[index.row()]['utility_bills'].copy()
             utility_bills.pop('id')
@@ -125,6 +131,8 @@ class UtilityBillsPaymentsPage(CustomWindow):
                                 'error')
                 if dialog.is_accepted:
                     self.close()
+                return
+
         self.close()
 
     def cancel(self):

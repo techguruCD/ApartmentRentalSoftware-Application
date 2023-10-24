@@ -75,7 +75,7 @@ def tenant_list(search: str = None, status: str = None, final_url: str = None) -
     return True, {
         'next': next_page,
         'previous': previous_page,
-        'current': current_page,
+        'current': f'{page}\n{search}\n{status}',
         'results': [Tenant._to_dict(tenant_object) for tenant_object in queryset.order_by(Tenant.id).paginate(page, settings.PAGINATION_PAGE_SIZE)]
     }
 

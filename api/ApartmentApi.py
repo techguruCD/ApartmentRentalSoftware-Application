@@ -62,6 +62,7 @@ def apartment_list(search: str = None, final_url: str = None) -> tuple[bool, dic
     return True, {
         'next': next_page,
         'previous': previous_page,
+        'current': f'{page}\n{search}',
         'results': [Apartment._to_dict(apartment_object) for apartment_object in queryset.order_by(Apartment.id).paginate(page, settings.PAGINATION_PAGE_SIZE)]
     }
 
