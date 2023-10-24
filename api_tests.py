@@ -11,7 +11,7 @@ letters = list(string.ascii_lowercase)
 
 class TestTenantApi(unittest.TestCase):
     def setUp(self) -> None:
-        Tenant.delete().execute()
+        clear_db()
 
     def test_tenant_create_and_get(self):
         tenant = {
@@ -136,10 +136,72 @@ class TestTenantApi(unittest.TestCase):
         self.assertEqual(result['results'][0]['phone'], tenant_3['phone'])
         self.assertEqual(result['results'][0]['email'], tenant_3['email'])
 
+    def test_filter_tenant_list_by_status(self):
+        tenant_1 = {
+            'first_name': 'first_name1',
+            'last_name': 'last_name1',
+            'phone': '123456789',
+            'email': 'test1@example.com'
+        }
+        tenant_2 = {
+            'first_name': 'first_name2',
+            'last_name': 'last_name2',
+            'phone': '123456789',
+            'email': 'test2@example.com'
+        }
+        tenant_3 = {
+            'first_name': 'first_name3',
+            'last_name': 'last_name3',
+            'phone': '000000000',
+            'email': 'test3@example.com'
+        }
+        
+        TenantApi.create_tenant(tenant_1)
+        success, tenant = TenantApi.create_tenant(tenant_2)
+        TenantApi.create_tenant(tenant_3)
+
+        owner = {
+            'first_name': 'first_name',
+            'last_name': 'last_name',
+            'phone': '123456789',
+            'email': 'test@example.com'
+        }
+        success, owner = OwnerApi.create_owner(owner)
+
+        apartment = {
+            'name': 'apartment',
+            'address': 'address',
+            'beds': 10,
+            'owner': owner
+        }
+        success, apartment = ApartmentApi.create_apartment(apartment)
+
+        lease_contract = {
+            'start_date': '2023-10-01',
+            'end_date': '2023-10-30',
+            'rent_price': 800,
+            'utilities_included': True,
+            'tax': 10,
+            'tenant': tenant,
+            'apartment': apartment
+        }
+        success, obj = LeaseContractApi.create_lease_contract(lease_contract)
+
+        success, result = TenantApi.tenant_list(status='active')
+
+        self.assertEqual(len(result['results']), 1)
+        self.assertEqual(result['previous'], None)
+        self.assertEqual(result['next'], None)
+
+        self.assertEqual(result['results'][0]['first_name'], tenant_2['first_name'])
+        self.assertEqual(result['results'][0]['last_name'], tenant_2['last_name'])
+        self.assertEqual(result['results'][0]['phone'], tenant_2['phone'])
+        self.assertEqual(result['results'][0]['email'], tenant_2['email'])
+
 
 class TestOwnerApi(unittest.TestCase):
     def setUp(self) -> None:
-        Owner.delete().execute()
+        clear_db()
 
     def test_owner_create_and_get(self):
         owner = {
@@ -267,8 +329,7 @@ class TestOwnerApi(unittest.TestCase):
 
 class TestApartmentApi(unittest.TestCase):
     def setUp(self) -> None:
-        Apartment.delete().execute()
-        Owner.delete().execute()
+        clear_db()
 
     def test_apartment_create_and_get(self):
         owner = {
@@ -445,10 +506,7 @@ class TestApartmentApi(unittest.TestCase):
 
 class TestLeaseContractApi(unittest.TestCase):
     def setUp(self) -> None:
-        LeaseContract.delete().execute()
-        Owner.delete().execute()
-        Apartment.delete().execute()
-        Tenant.delete().execute()
+        clear_db()
 
     def test_lease_contract_create_and_get(self):
         owner = {
@@ -489,7 +547,6 @@ class TestLeaseContractApi(unittest.TestCase):
         self.assertTrue(success)
 
         success, obj = LeaseContractApi.get_lease_contract(obj['id'])
-        # obj['tenant'].pop('status')
 
         self.assertEqual(lease_contract['start_date'], obj['start_date'])
         self.assertEqual(lease_contract['end_date'], obj['end_date'])
@@ -1486,10 +1543,30 @@ class TestNotificationsApi(unittest.TestCase):
         self.assertEqual(result['results'][0]['dates'], task_1['dates'])
         self.assertEqual(result['results'][0]['lease_contract'], task_1['lease_contract'])
 
+def clear_db():
+    ReminderNamedDate = Reminder.dates.get_through_model()
+    TaskNamedDate = Task.dates.get_through_model()
+    TaskCellAction = Task.actions.get_through_model()
+    Tenant.delete().execute()
+    Owner.delete().execute()
+    Apartment.delete().execute()
+    LeaseContract.delete().execute()
+    UtilityBills.delete().execute()
+    Transaction.delete().execute()
+    NamedDate.delete().execute()
+    CellAction.delete().execute()
+    Reminder.delete().execute()
+    Task.delete().execute()
+    ReminderNamedDate.delete().execute()
+    TaskNamedDate.delete().execute()
+    TaskCellAction.delete().execute()
+
 if __name__ == '__main__':
+    clear_db()
     settings.PAGINATION_PAGE_SIZE = 2
     create_tables()
     unittest.main()
+    clear_db()
 
 # TenantApi +
 # OwnerApi +
