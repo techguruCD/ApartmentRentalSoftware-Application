@@ -36,11 +36,14 @@ class TenantListPage(CustomWindow):
         self.setWindowTitle(tr('TenantListPage - Title', 'Tenant List'))
         self._next_page = None
         self._previous_page = None
+        self._current_page = None
 
         self.__init_UI()
-
         self.update_data()
+        self.table_view.horizontalHeader().setStretchLastSection(True)
         self.table_view.resizeColumnsToContents()
+
+        self.SignalUpdate.connect(self._update_data_signal_handler)
 
     def __init_UI(self):
         self.setObjectName("Window")
@@ -135,6 +138,9 @@ class TenantListPage(CustomWindow):
     def new_tenant_click(self):
         self.Signal.emit({'window': 'tenant'})
 
+    def _update_data_signal_handler(self):
+        self.update_data(self._current_page)
+
     def update_data(self, final_url: str = '1\n'):
         search = self.search.text()
 
@@ -154,6 +160,8 @@ class TenantListPage(CustomWindow):
             else:
                 self.button_next.setDisabled(False)
                 self._next_page = data['next']
+            
+            self._current_page = data['current']
     
     def next_page(self):
         self.update_data(final_url=self._previous_page)

@@ -124,7 +124,7 @@ class TenantPage(CustomWindow):
             self.cancel()
 
     def cancel(self):
-        self.Signal.emit({'window': 'back'})
+        self.Signal.emit({'window': 'back', 'from': 'tenant'})
 
     def __load_tenant(self):
         success, tenant = api.get_tenant(self.__id)

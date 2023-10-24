@@ -69,6 +69,7 @@ class MainWindow(QtWidgets.QMainWindow):
             
             case 'back':
                 window, min_size = self.windows_queue.pop(-1)
+                window.SignalUpdate.emit()
                 self.setCentralWidget(window)
                 self.setMinimumSize(min_size)
                 return

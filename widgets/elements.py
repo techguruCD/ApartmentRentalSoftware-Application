@@ -65,6 +65,7 @@ class CustomWindow(QtWidgets.QWidget):
     SignalShowMaximized = QtCore.Signal()
     SignalShowFullScreen = QtCore.Signal()
     SignalClose = QtCore.Signal()
+    SignalUpdate = QtCore.Signal()
 
     Signal = QtCore.Signal(dict)
 
