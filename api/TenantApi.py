@@ -64,6 +64,8 @@ def tenant_list(search: str = None, status: str = None, final_url: str = None) -
         if pages > 1 and page < pages:
             next_page = f'{page + 1}\n{search}\n{status}'
 
+        current_page = f'{page}\n{search}\n{status}'
+
     else:
         queryset = _filter(search, status, queryset)
 
