@@ -341,8 +341,7 @@ class ApartmentPage(CustomWindow):
             dialog = Dialog(tr('ApartmentPage - Success title', 'Save success'),
                             tr('ApartmentPage - Success text', 'Save Success'),
                             'error')
-            if dialog.is_accepted:
-                self.SignalClose.emit()
+            self.cancel()
 
     def cancel(self):
-        self.SignalClose.emit()
+        self.Signal.emit({'window': 'back'})
