@@ -25,7 +25,7 @@ def get_notification_date(object) -> str:
         named_dates = object.dates
         named_dates = sorted(named_dates, key=lambda x: x.date)
 
-        current_date = datetime.datetime.utcnow()
+        current_date = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
 
         for named_date in named_dates:
             date = datetime.datetime.fromisoformat(to_isoformat(named_date.date))
@@ -52,6 +52,17 @@ def to_isoformat(date) -> str:
         return date
     else:
         return date.isoformat()
+
+
+class DateTimeUTCField(DateTimeField):
+    def db_value(self, value):
+        if isinstance(value, str):
+            value = datetime.datetime.fromisoformat(value)
+
+        if value and value.tzinfo:
+            value = value.astimezone(datetime.timezone.utc)
+        
+        return value.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
 
 
 class BaseModel(Model):
@@ -231,7 +242,7 @@ class NamedDate(BaseModel):
     id = IntegerField(primary_key=True)
 
     name = CharField(max_length=255, default='', null=False)
-    date = DateTimeField(null=False)
+    date = DateTimeUTCField(null=False)
 
     @staticmethod
     def _to_dict(named_date_object):

@@ -3,12 +3,18 @@ from PySide6 import(
     QtGui,
     QtWidgets
 )
-from tablemodels.UtilityBillsPaymentsTableModel import UtilityBillsPaymentsTableModel
-from widgets.elements import InputWrapper, CustomWindow
-from widgets.dialogs import Dialog, UtilityBillsDialog
+from widgets.elements import (
+    InputWrapper,
+    CustomWindow,
+)
+from widgets.dialogs import (
+    UtilityBillsDialog,
+    Dialog,
+)
 from api import (
     TransactionApi
 )
+from tablemodels.UtilityBillsPaymentsTableModel import UtilityBillsPaymentsTableModel
 
 tr = QtCore.QCoreApplication.translate
 
@@ -125,6 +131,8 @@ class UtilityBillsPaymentsPage(CustomWindow):
                                 'error')
                 if dialog.is_accepted:
                     self.close()
+                return
+
         self.close()
 
     def cancel(self):

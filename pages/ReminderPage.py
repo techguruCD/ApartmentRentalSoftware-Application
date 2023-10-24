@@ -3,19 +3,23 @@ from PySide6 import (
     QtGui,
     QtWidgets
 )
-
-from widgets.elements import InputWrapper, CustomWindow, NamedHObjectLayout
-from tools import get_utc_offset
-from settings import email_subjects
 from tablemodels.NamedDateTableModel import (
     NamedDateTableModel,
     DateEditDelegate,
     LineEditDelegate,
 )
+from widgets.elements import (
+    InputWrapper,
+    CustomWindow,
+    NamedHObjectLayout
+)
 from api import (
     LeaseContractApi,
-
+    NotificationsApi,
 )
+from settings import email_subjects
+from widgets.dialogs import Dialog
+from tools import get_utc_offset
 import datetime
 
 tr = QtCore.QCoreApplication.translate
@@ -26,13 +30,14 @@ class ReminderPage(CustomWindow):
 
         self.setWindowTitle(tr('ReminderPage - Title', 'Reminder'))
 
-        self._id = None
-        self._rental = None
+        self.__id = id
+        self._lease_contract = None
         self._named_dates = []
 
         self.__init_UI()
 
-        self.show()
+        if self.__id is not None:
+            self.__load_reminder()
 
     def __init_UI(self):
         date = datetime.datetime.now()
@@ -115,46 +120,63 @@ class ReminderPage(CustomWindow):
         self.named_dates_button_add.setObjectName('IconButton')
         self.named_dates_button_add.setIconSize(QtCore.QSize(24, 24))
 
-        reminder_named_dates_layout.addWidget(label, 0, 0, 1, 4)
+        reminder_named_dates_layout.addWidget(label, 0, 0, 1, 4, alignment=QtCore.Qt.AlignmentFlag.AlignRight | QtCore.Qt.AlignmentFlag.AlignTop)
         reminder_named_dates_layout.addWidget(self.named_dates_button_add, 1, 0, alignment=QtCore.Qt.AlignmentFlag.AlignBottom)
-        reminder_named_dates_layout.addWidget(InputWrapper(tr('ReminderPage - Name', 'Name'), self.named_dates_name), 1, 1, 1, 2)
-        reminder_named_dates_layout.addWidget(InputWrapper(tr('ReminderPage - Date', 'Date'), self.named_dates_date), 1, 3)
+        reminder_named_dates_layout.addWidget(InputWrapper(tr('ReminderPage - Name', 'Name'), self.named_dates_name), 1, 1, 1, 2, alignment=QtCore.Qt.AlignmentFlag.AlignTop)
+        reminder_named_dates_layout.addWidget(InputWrapper(tr('ReminderPage - Date', 'Date'), self.named_dates_date), 1, 3, alignment=QtCore.Qt.AlignmentFlag.AlignTop)
         reminder_named_dates_layout.addWidget(self.named_dates_table_view, 2, 0, 1, 4)
 
-        reminder_rental_layout = QtWidgets.QGridLayout()
-        reminder_rental_layout.setContentsMargins(10, 10, 10, 10)
-        reminder_rental_layout.setSpacing(20)
-        reminder_rental_frame = QtWidgets.QFrame()
-        reminder_rental_frame.setObjectName('Frame')
-        reminder_rental_frame.setLayout(reminder_rental_layout)
+        reminder_lease_contract_layout = QtWidgets.QGridLayout()
+        reminder_lease_contract_layout.setContentsMargins(10, 10, 10, 10)
+        reminder_lease_contract_layout.setSpacing(20)
+        reminder_lease_contract_frame = QtWidgets.QFrame()
+        reminder_lease_contract_frame.setObjectName('Frame')
+        reminder_lease_contract_frame.setLayout(reminder_lease_contract_layout)
 
-        label = QtWidgets.QLabel(tr('ReminderPage - Information rental label', 'Rental'), font=QtGui.QFont('Open Sans', 24, 600))
+        label = QtWidgets.QLabel(tr('ReminderPage - Information lease contract label', 'Lease Contract'), font=QtGui.QFont('Open Sans', 24, 600))
         label.setObjectName('Label')
 
-        self.rental_search_widget = QtWidgets.QLineEdit()
-        self.rental_search_widget.setObjectName('Input')
-        self.rental_search_widget.textChanged.connect(self._rental_search)
+        self.lease_contract_search_widget = QtWidgets.QLineEdit()
+        self.lease_contract_search_widget.setObjectName('Input')
+        self.lease_contract_search_widget.textChanged.connect(self._lease_contract_search)
 
-        self.rental_search_layout = QtWidgets.QVBoxLayout()
-        self.rental_search_layout.setContentsMargins(0, 0, 0, 0)
-        self.rental_search_layout.setSpacing(10)
-        self.rental_search_layout.setAlignment(QtCore.Qt.AlignmentFlag.AlignTop)
+        self.lease_contract_search_layout = QtWidgets.QVBoxLayout()
+        self.lease_contract_search_layout.setContentsMargins(0, 0, 0, 0)
+        self.lease_contract_search_layout.setSpacing(10)
+        self.lease_contract_search_layout.setAlignment(QtCore.Qt.AlignmentFlag.AlignTop)
         scroll_widget = QtWidgets.QWidget()
         scroll_widget.setObjectName('Wrapper')
-        scroll_widget.setLayout(self.rental_search_layout)
+        scroll_widget.setLayout(self.lease_contract_search_layout)
 
         scroll = QtWidgets.QScrollArea()
         scroll.setWidget(scroll_widget)
         scroll.setWidgetResizable(True)
-        scroll.setFixedHeight(150)
+        scroll.setMinimumHeight(150)
 
-        reminder_rental_layout.addWidget(label, 0, 0, alignment=QtCore.Qt.AlignmentFlag.AlignRight | QtCore.Qt.AlignmentFlag.AlignTop)
-        reminder_rental_layout.addWidget(InputWrapper(tr('Widgets - Search', 'Search'), self.rental_search_widget), 1, 0)
-        reminder_rental_layout.addWidget(scroll, 2, 0)
+        reminder_lease_contract_layout.addWidget(label, 0, 0, alignment=QtCore.Qt.AlignmentFlag.AlignRight | QtCore.Qt.AlignmentFlag.AlignTop)
+        reminder_lease_contract_layout.addWidget(InputWrapper(tr('Widgets - Search', 'Search'), self.lease_contract_search_widget), 1, 0, alignment=QtCore.Qt.AlignmentFlag.AlignTop)
+        reminder_lease_contract_layout.addWidget(scroll, 2, 0, alignment=QtCore.Qt.AlignmentFlag.AlignTop)
 
-        layout.addWidget(reminder_information_frame, 0, 0, 1, 9)
-        layout.addWidget(reminder_named_dates_frame, 1, 0, 1, 9)
-        layout.addWidget(reminder_rental_frame, 2, 0, 1, 9)
+        button_save = QtWidgets.QPushButton(tr('Buttons - Save', 'Save'))
+        button_save.setObjectName('DialogButton')
+        button_save.clicked.connect(self.save)
+
+        button_cancel = QtWidgets.QPushButton(tr('Buttons - Cancel', 'Cancel'))
+        button_cancel.setObjectName('DialogButton')
+        button_cancel.clicked.connect(self.cancel)
+
+        button_back = QtWidgets.QPushButton(icon=QtGui.QIcon('data/arrow-long-left.svg'))
+        button_back.setObjectName('IconButton')
+        button_back.setIconSize(QtCore.QSize(24, 24))
+        button_back.clicked.connect(self.cancel)
+
+        layout.addWidget(reminder_information_frame, 1, 0, 1, 9)
+        layout.addWidget(reminder_named_dates_frame, 2, 0, 1, 9)
+        layout.addWidget(reminder_lease_contract_frame, 3, 0, 1, 9)
+
+        layout.addWidget(button_back, 0, 0, alignment=QtCore.Qt.AlignmentFlag.AlignLeft)
+        layout.addWidget(button_save, 4, 0, 1, 2)
+        layout.addWidget(button_cancel, 4, 2, 1, 2)
 
     def _add_named_date(self):
         date = self.named_dates_date.dateTime().toString('yyyy-MM-ddThh:mm:00') + get_utc_offset()
@@ -174,46 +196,46 @@ class ReminderPage(CustomWindow):
             self.named_dates_table_model = NamedDateTableModel(self._named_dates)
             self.named_dates_table_view.setModel(self.named_dates_table_model)
 
-    def _rental_search(self, search):
-        rentals = []
+    def _lease_contract_search(self, search):
+        lease_contracts = []
         if search != '':
-            success, data = LeaseContractApi.rentals_list(search, None)
+            success, data = LeaseContractApi.lease_contract_list(search, None)
             if success:
-                rentals.extend(data['results'])
+                lease_contracts.extend(data['results'])
                 while True:
                     if data['next'] is not None:
                         success, data = LeaseContractApi.rentals_list(None, data['next'])
                         if success:
-                            rentals.extend(data['results'])
+                            lease_contracts.extend(data['results'])
                     else:
                         break
         
-        for i in range(self.rental_search_layout.count()):
-            item = self.rental_search_layout.takeAt(0)
+        for i in range(self.lease_contract_search_layout.count()):
+            item = self.lease_contract_search_layout.takeAt(0)
             item.widget().deleteLater()
 
-        if self._rental is not None:
-            self._add_rental(self._rental, False)
+        if self._lease_contract is not None:
+            self._add_lease_contract(self._lease_contract, False)
 
-        for rental in rentals:
+        for lease_contract in lease_contracts:
             frame = QtWidgets.QWidget()
             frame.setObjectName('Frame')
             button = QtWidgets.QPushButton(icon=QtGui.QIcon('data/plus-circle.svg'))
             button.setFixedSize(24, 24)
             button.setObjectName('IconButton')
             button.setIconSize(QtCore.QSize(24, 24))
-            button.clicked.connect(lambda _=False, rental=rental: self._add_rental(rental, True))
-            layout = NamedHObjectLayout(f'{rental["start_date"]} {rental["end_date"]} {rental["apartment"]["unique_identifier"]}', button, direction='left', text_align='right', font=QtGui.QFont('Open Sans', 16, 400))
+            button.clicked.connect(lambda _=False, lease_contract=lease_contract: self._add_lease_contract(lease_contract, True))
+            layout = NamedHObjectLayout(f'{lease_contract["start_date"]} {lease_contract["end_date"]} {lease_contract["tenant"]["first_name"]} {lease_contract["tenant"]["last_name"]} {lease_contract["apartment"]["name"]} {lease_contract["apartment"]["unique_identifier"]}', button, direction='left', text_align='right', font=QtGui.QFont('Open Sans', 16, 400))
             frame.setLayout(layout)
 
-            self.rental_search_layout.addWidget(frame)
+            self.lease_contract_search_layout.addWidget(frame)
 
-    def add_profile(self, profile, clear: bool, can_delete: bool = True):
-        self._profile = profile
+    def _add_lease_contract(self, lease_contract, clear: bool, can_delete: bool = True):
+        self._lease_contract = lease_contract
 
         if clear:
-            for i in range(self.profiles.count()):
-                item = self.profiles.takeAt(0)
+            for i in range(self.lease_contract_search_layout.count()):
+                item = self.lease_contract_search_layout.takeAt(0)
                 item.widget().deleteLater()
 
         frame = QtWidgets.QWidget()
@@ -222,18 +244,73 @@ class ReminderPage(CustomWindow):
         button.setFixedSize(24, 24)
         button.setObjectName('IconButton')
         button.setIconSize(QtCore.QSize(24, 24))
-        button.clicked.connect(lambda _=False: self.remove_profile())
+        button.clicked.connect(lambda _=False: self._remove_lease_contract())
         if not can_delete:
             button.setDisabled(True)
-            self.profiles_search.setDisabled(True)
-        layout = NamedHObjectLayout(f'{profile["first_name"]} {profile["last_name"]} {profile["id_card"]}', button, direction='left', text_align='right', font=QtGui.QFont('Open Sans', 16, 400))
+            self.lease_contract_search_widget.setDisabled(True)
+        layout = NamedHObjectLayout(f'{lease_contract["start_date"]} {lease_contract["end_date"]} {lease_contract["tenant"]["first_name"]} {lease_contract["tenant"]["last_name"]} {lease_contract["apartment"]["name"]} {lease_contract["apartment"]["unique_identifier"]}', button, direction='left', text_align='right', font=QtGui.QFont('Open Sans', 16, 400))
         frame.setLayout(layout)
 
-        self.profiles.addWidget(frame)
+        self.lease_contract_search_layout.addWidget(frame)
 
-    def remove_profile(self): 
-        self._profile = None
+    def _remove_lease_contract(self):
+        self._lease_contract = None
 
-        for i in range(self.profiles.count()):
-            item = self.profiles.takeAt(0)
+        for i in range(self.lease_contract_search_layout.count()):
+            item = self.lease_contract_search_layout.takeAt(0)
             item.widget().deleteLater()
+
+    def save(self):
+        data = {
+            'id': self.__id,
+            'date': self.creation_date.date().toString('yyyy-MM-dd'),
+            'notify_owner': True if self.notify_owner.isChecked() else False,
+            'text': self.reminder_text.text(),
+            'email_subject': self.email_subject.currentText(),
+            'lease_contract': self._lease_contract,
+            'dates': self._named_dates,
+        }
+
+        if self.__id is None:
+            success, _ = NotificationsApi.create_reminder(data)
+            if not success:
+                dialog = Dialog(tr('Dialog - Error title', 'Save error'),
+                                tr('Dialog - Error text', 'An error occurred while saving data!'),
+                                'error') 
+                if dialog.is_accepted:
+                    self.close()
+                return
+
+        else:
+            success, reminder = NotificationsApi.update_reminder(data)
+            if not success:
+                dialog = Dialog(tr('Dialog - Error title', 'Update error'),
+                                tr('Dialog - Error text', 'An error occurred while updating data!'),
+                                'error') 
+                if dialog.is_accepted:
+                    self.close()
+                return
+
+        self.close()
+
+    def cancel(self):
+        self.Signal.emit({'window': 'back'})
+
+    def __load_reminder(self):
+        success, reminder = NotificationsApi.get_reminder(self.__id)
+        if success:
+            creation_date = datetime.date.fromisoformat(reminder['date'])
+            self.creation_date.setDate(QtCore.QDate(creation_date.year, creation_date.month, creation_date.day))
+            self.reminder_text.setText(reminder['text'])
+            self.email_subject.setCurrentIndex(email_subjects.index(reminder['email_subject']))
+
+            self._add_lease_contract(reminder['lease_contract'], False, False)
+
+            self._named_dates = reminder['dates']
+            self.named_dates_table_model = NamedDateTableModel(self._named_dates)
+            self.named_dates_table_view.setModel(self.named_dates_table_model)
+
+        else:
+            Dialog(tr('Dialog - Error title', 'Load error'),
+                   tr('Dialog - Error text', 'An error occurred while load data!'),
+                   'error')

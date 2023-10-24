@@ -3,12 +3,16 @@ from PySide6 import(
     QtGui,
     QtWidgets
 )
-from tablemodels.RentPaymentsTableModel import RentPaymentsTableModel
-from widgets.elements import InputWrapper, CustomWindow
-from widgets.dialogs import Dialog
+from widgets.elements import (
+    InputWrapper,
+    CustomWindow
+)
 from api import (
     TransactionApi
 )
+from tablemodels.RentPaymentsTableModel import RentPaymentsTableModel
+from widgets.dialogs import Dialog
+
 
 tr = QtCore.QCoreApplication.translate
 
@@ -117,6 +121,8 @@ class RentPaymentsPage(CustomWindow):
                                 'error')
                 if dialog.is_accepted:
                     self.close()
+                return
+
         self.close()
 
     def cancel(self):

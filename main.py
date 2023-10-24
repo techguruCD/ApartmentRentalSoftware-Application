@@ -10,6 +10,8 @@ from pages import (
     TenantPage,
     UtilityBillsPaymentsPage,
     RentPaymentsPage,
+    ReminderPage,
+    TaskPage,
 )
 
 import widgets.dialogs as dialogs
@@ -24,22 +26,17 @@ class MainWindow(QtWidgets.QMainWindow):
     central = None
     def __init__(self) -> None:
         super().__init__()
-                
+
         self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
         self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
+
         self.windows_queue = []
 
-        self.set_window('tenantList')
+        self.set_window('task', id=1)
 
         self.show()
 
-    # def onSignal(self, param):
-    #     print(param)
-    #     self.pages.insert(self.pages.__len__(), self.centralWidget())
-    #     central = pages[param['window']]()
-    #     central.connect_control_signals(self)
-    #     self.setCentralWidget(central)
-    
+
     def _signal_handler(self, params):
         window_name = params.pop('window', None)
         if window_name is not None:
@@ -48,31 +45,40 @@ class MainWindow(QtWidgets.QMainWindow):
     def set_window(self, window_name: str, **kwargs):
         if window_name != 'back':
             self.windows_queue.append((self.takeCentralWidget(), self.minimumSize()))
-        
+
         match window_name:
             case 'rent_paymets': # This is a separate window and we must show it separately
                 window = RentPaymentsPage()
                 window.setMinimumSize(600, 400)
                 return
+
             case 'utility_bills_payments': # This is a separate window and we must show it separately
                 window = UtilityBillsPaymentsPage()
                 window.setMinimumSize(600, 400)
                 return
-            
+
+            case 'reminder':
+                self.setCentralWidget(ReminderPage(**kwargs))
+                self.setMinimumSize(900, 800)
+
+            case 'task':
+                self.setCentralWidget(TaskPage(**kwargs))
+                self.setMinimumSize(900, 800)
+
             case 'tenant':
-                self.setCentralWidget(TenantPage(**kwargs)) # for id
-                self.setMinimumSize(800, 600)
+                self.setCentralWidget(TenantPage(**kwargs))
+                self.setMinimumSize(900, 800)
 
             case 'tenantList':
-                self.setCentralWidget(TenantListPage(**kwargs)) # for id
-                self.setMinimumSize(800, 600)
-            
+                self.setCentralWidget(TenantListPage(**kwargs))
+                self.setMinimumSize(900, 800)
+
             case 'back':
                 window, min_size = self.windows_queue.pop(-1)
                 self.setCentralWidget(window)
                 self.setMinimumSize(min_size)
                 return
-            
+
         self.centralWidget().connect_control_signals(self)
 
 
@@ -97,3 +103,4 @@ if __name__ == '__main__':
 
     window = MainWindow()
     app.exec()
+

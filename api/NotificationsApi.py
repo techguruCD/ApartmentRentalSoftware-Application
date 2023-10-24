@@ -97,15 +97,23 @@ def _task_filter(search, active, queryset):
 
 
 def _add_dates(object, dates):
+    for named_date in object.dates:
+        named_date.delete_instance()
     object.dates.clear()
+
     for date in dates:
-        date_object, _ = NamedDate.get_or_create(**date)
+        date.pop('id', None)
+        date_object = NamedDate.create(**date)
         object.dates.add(date_object)
 
 def _add_actions(object, actions):
+    for cell_action in object.actions:
+        cell_action.delete_instance()
     object.actions.clear()
+
     for action in actions:
-        action_object, _ = CellAction.get_or_create(**action)
+        action.pop('id', None)
+        action_object = CellAction.create(**action)
         object.actions.add(action_object)
 
 
@@ -184,13 +192,13 @@ def update_reminder(data: dict) -> bool:
         lease_contract_object = _data.pop('lease_contract', None)
         if lease_contract_object is not None:
             lease_contract_object = LeaseContract.get_by_id(lease_contract_object['id'])
-        
+
         dates = _data.pop('dates', None)
 
         reminder_object = Reminder.get_by_id(id)
         if lease_contract_object is not None:
             reminder_object.lease_contract = lease_contract_object
-        
+
         if dates is not None:
             _add_dates(reminder_object, dates)
 
