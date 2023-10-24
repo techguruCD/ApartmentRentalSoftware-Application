@@ -52,7 +52,7 @@ class UtilityBillsPaymentsPage(CustomWindow):
 
         self.table_view.setEditTriggers(QtWidgets.QTableView.EditTrigger.NoEditTriggers)
         self.table_view.setSelectionMode(QtWidgets.QTableView.SelectionMode.NoSelection)
-        self.table_view.doubleClicked.connect(self.table_click)
+        self.table_view.doubleClicked.connect(self.__table_click)
         self.table_view.hideColumn(0)
 
         self.button_next = QtWidgets.QPushButton(icon=QtGui.QIcon('data/arrow-long-right.svg'))
@@ -84,7 +84,7 @@ class UtilityBillsPaymentsPage(CustomWindow):
 
         self.widget.setLayout(layout)
 
-    def table_click(self, index: QtCore.QModelIndex):
+    def __table_click(self, index: QtCore.QModelIndex):
         if index.column() == 3:
             utility_bills = self.table_model._data[index.row()]['utility_bills'].copy()
             utility_bills.pop('id')
