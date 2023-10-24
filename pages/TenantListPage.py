@@ -24,6 +24,8 @@ from PySide6.QtWidgets import (
     QSizePolicy
 )
 
+from models import TENANT_STATUS
+
 import api.TenantApi as api
 from widgets.elements import InputWrapper, CustomWindow
 from tablemodels.TenantTableModel import TenantTableModel
@@ -71,6 +73,7 @@ class TenantListPage(CustomWindow):
         self.combo_status.addItem('All')
         self.combo_status.addItem('Active')
         self.combo_status.addItem('Inactive')
+        self.combo_status.currentIndexChanged.connect(lambda _: self.update_data())
         layout_search = QHBoxLayout()
         layout_search.addWidget(InputWrapper(tr('Widgets - Search', 'Search'), self.search))
         layout_search.addWidget(InputWrapper(tr('Widgets - Status', 'Status'), self.combo_status))
@@ -142,10 +145,18 @@ class TenantListPage(CustomWindow):
     def _update_data_signal_handler(self):
         self.update_data(self._current_page)
 
-    def update_data(self, final_url: str = '1\n'):
+    def update_data(self, final_url: str = None):
         search = self.search.text()
+        status = None
+        if search == "":
+            search = None
+        match self.combo_status.currentIndex():
+            case 1:
+                status = 'active'
+            case 2:
+                status = 'inactive'
 
-        success, data = api.tenant_list(search, final_url)
+        success, data = api.tenant_list(search, status, final_url)
         if success:
             self.table_model = TenantTableModel(data['results'])
             self.table_view.setModel(self.table_model)
