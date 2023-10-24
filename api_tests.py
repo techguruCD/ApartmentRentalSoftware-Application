@@ -157,8 +157,8 @@ class TestTenantApi(unittest.TestCase):
         }
         
         TenantApi.create_tenant(tenant_1)
-        TenantApi.create_tenant(tenant_2)
-        success, tenant = TenantApi.create_tenant(tenant_3)
+        success, tenant = TenantApi.create_tenant(tenant_2)
+        TenantApi.create_tenant(tenant_3)
 
         owner = {
             'first_name': 'first_name',
@@ -193,10 +193,10 @@ class TestTenantApi(unittest.TestCase):
         self.assertEqual(result['previous'], None)
         self.assertEqual(result['next'], None)
 
-        self.assertEqual(result['results'][0]['first_name'], tenant_3['first_name'])
-        self.assertEqual(result['results'][0]['last_name'], tenant_3['last_name'])
-        self.assertEqual(result['results'][0]['phone'], tenant_3['phone'])
-        self.assertEqual(result['results'][0]['email'], tenant_3['email'])
+        self.assertEqual(result['results'][0]['first_name'], tenant_2['first_name'])
+        self.assertEqual(result['results'][0]['last_name'], tenant_2['last_name'])
+        self.assertEqual(result['results'][0]['phone'], tenant_2['phone'])
+        self.assertEqual(result['results'][0]['email'], tenant_2['email'])
 
 
 class TestOwnerApi(unittest.TestCase):

@@ -4,6 +4,7 @@ from models import (
     TENANT_STATUS
 )
 from tools import total_pages
+from peewee import JOIN
 import datetime
 import settings
 
@@ -34,16 +35,13 @@ def _filter(search, status, queryset):
             (LeaseContract.tenant == Tenant.id) & 
             (LeaseContract.end_date >= today)
         )
-        queryset = queryset.join(LeaseContract, on=(Tenant.id == LeaseContract.tenant)).where(
+        queryset = queryset.join(LeaseContract, JOIN.INNER, on=(Tenant.id == LeaseContract.tenant)).where(
             LeaseContract.id << subquery
         )
     elif status == TENANT_STATUS.inactive:
-        subquery = LeaseContract.select().where(
-            (LeaseContract.tenant == Tenant.id) & 
+        queryset = queryset.join(LeaseContract, JOIN.LEFT_OUTER ,on=(Tenant.id == LeaseContract.tenant)).where(
+            (LeaseContract.id.is_null()) |
             (LeaseContract.end_date < today)
-        )
-        queryset = queryset.join(LeaseContract, on=(Tenant.id == LeaseContract.tenant)).where(
-            LeaseContract.id << subquery
         )
 
     return queryset.distinct()
