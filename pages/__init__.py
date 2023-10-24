@@ -9,3 +9,4 @@ from .TenantPage import TenantPage
 from .TenantListPage import TenantListPage
 from .RentPaymentsPage import RentPaymentsPage
 from .UtilityBillsPaymentsPage import UtilityBillsPaymentsPage
+from .ApartmentPage import ApartmentPage

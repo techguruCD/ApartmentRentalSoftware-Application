@@ -10,6 +10,7 @@ from pages import (
     TenantPage,
     UtilityBillsPaymentsPage,
     RentPaymentsPage,
+    ApartmentPage
 )
 
 import widgets.dialogs as dialogs
@@ -22,7 +23,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
         self.windows_queue = []
 
-        self.set_window('tenantList')
+        # self.set_window('tenantList')
+        self.set_window('apartment')
 
         self.show()
     
@@ -51,6 +53,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
             case 'tenantList':
                 self.setCentralWidget(TenantListPage(**kwargs)) # for id
+                self.setMinimumSize(800, 600)
+            
+            case 'apartment':
+                self.setCentralWidget(ApartmentPage(**kwargs)) # for id
                 self.setMinimumSize(800, 600)
             
             case 'back':

@@ -26,12 +26,11 @@ from PySide6.QtWidgets import (
     QSizePolicy
 )
 
-from api import ApartmentApi, TransactionApi, TenantApi
+from api import ApartmentApi, TransactionApi, OwnerApi
 from widgets.elements import InputWrapper, CustomWindow
 from widgets.dialogs import Dialog
 from tablemodels.TransactionTableModel import TransactionTableModel
 from tablemodels.ApartmentOwnerTableModel import ApartmentOwnerTableModel
-from tablemodels.TenantTableModel import TenantTableModel
 
 tr = QCoreApplication.translate
 # Name!, Last Name!, Phone!, Mail!, Parents' Address, Parents' Phone, Note [text field]
@@ -43,14 +42,14 @@ class ApartmentPage(CustomWindow):
         self._next_page = None
         self._previous_page = None
 
-        self._next_page_tenant = None
-        self._previous_page_tenant = None
+        self._next_page_owner = None
+        self._previous_page_owner = None
 
         self.__init_UI()
 
         self.update_data()
-        self.update_data_tenant()
-        # self.table_view.resizeColumnsToContents()
+        self.update_data_owner()
+        # self.table_view_transaction.resizeColumnsToContents()
 
     def __init_UI(self):
         self.setObjectName("Window")
@@ -66,31 +65,30 @@ class ApartmentPage(CustomWindow):
         layout_back.addWidget(self.button_back)
         layout_back.addSpacerItem(QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum))
 
-        # self.label_title = QLabel(tr('TenantListPage - Title', 'Tenant List'), self)
-        # self.label_title.setObjectName('TitleLabel')
-
-        self.search = QLineEdit(self)
-        self.search.setObjectName('Input')
-        self.search.setPlaceholderText('🔍')
+        self.search_transaction = QLineEdit(self)
+        self.search_transaction.setObjectName('Input')
+        self.search_transaction.setPlaceholderText('🔍')
         self.combo_status = QComboBox(self)
         self.combo_status.setObjectName('Input')
-        self.combo_status.addItem('All')
-        self.combo_status.addItem('Income')
-        self.combo_status.addItem('Expense')
+        self.combo_status.addItem(tr('TransactionType - All', 'All'))
+        self.combo_status.addItem(tr('TransactionType - Income', 'Income'))
+        self.combo_status.addItem(tr('TransactionType - Expense', 'Expense'))
         layout_search = QHBoxLayout()
-        layout_search.addWidget(InputWrapper(tr('Widgets - Search', 'Search'), self.search))
+        layout_search.addWidget(InputWrapper(tr('Widgets - Search', 'Search'), self.search_transaction))
         layout_search.addWidget(InputWrapper(tr('Widgets - Status', 'Status'), self.combo_status))
+        layout_search.setStretch(0, 1)
 
-        self.table_model = TransactionTableModel([])
-        self.table_view = QTableView(self)
-        self.table_view.setMinimumWidth(350)
-        self.table_view.setObjectName('Table')
-        self.table_view.setModel(self.table_model)
+        self.table_model_transaction = TransactionTableModel([])
+        self.table_view_transaction = QTableView(self)
+        self.table_view_transaction.setMinimumWidth(350)
+        self.table_view_transaction.setObjectName('Table')
+        self.table_view_transaction.setModel(self.table_model_transaction)
 
-        self.table_view.setEditTriggers(QTableView.EditTrigger.NoEditTriggers)
-        self.table_view.setSelectionMode(QTableView.SelectionMode.NoSelection)
-        self.table_view.doubleClicked.connect(self.table_click)
-        self.table_view.hideColumn(0)
+        self.table_view_transaction.setEditTriggers(QTableView.EditTrigger.NoEditTriggers)
+        self.table_view_transaction.setSelectionMode(QTableView.SelectionMode.NoSelection)
+        self.table_view_transaction.horizontalHeader().setStretchLastSection(True)
+        self.table_view_transaction.doubleClicked.connect(self.table_click)
+        self.table_view_transaction.hideColumn(0)
 
         self.button_next = QPushButton(icon=QIcon('data/arrow-long-right.svg'))
         self.button_next.setObjectName('IconButton')
@@ -161,42 +159,43 @@ class ApartmentPage(CustomWindow):
         # owner_frame start
         self.owner_frame = QFrame(self)
         self.owner_frame.setObjectName('Frame')
-        layout_tenant = QGridLayout()
-        layout_tenant.setSpacing(20)
+        layout_owner = QGridLayout()
+        layout_owner.setSpacing(20)
 
         label = QLabel(tr('ApartmentPage - Owner label', 'Owner'), font=QFont('Open Sans', 24, 600))
         label.setObjectName('Label')
 
-        self.search_tenant = QLineEdit(self)
-        self.search_tenant.setObjectName('Input')
-        self.search_tenant.setPlaceholderText('🔍')
+        self.search_owner = QLineEdit(self)
+        self.search_owner.setObjectName('Input')
+        self.search_owner.setPlaceholderText('🔍')
 
-        self.table_model_tenant = ApartmentOwnerTableModel([])
-        self.table_view_tenant = QTableView(self)
-        self.table_view_tenant.setObjectName('Table')
-        self.table_view_tenant.setModel(self.table_model_tenant)
-        self.table_view_tenant.hideColumn(0)
-        self.table_view_tenant.setMinimumHeight(100)
+        self.table_model_owner = ApartmentOwnerTableModel([])
+        self.table_view_owner = QTableView(self)
+        self.table_view_owner.setObjectName('Table')
+        self.table_view_owner.setModel(self.table_model_owner)
+        self.table_view_owner.hideColumn(0)
+        self.table_view_owner.horizontalHeader().setStretchLastSection(True)
+        self.table_view_owner.setMinimumHeight(100)
 
-        self.button_next_tenant = QPushButton(icon=QIcon('data/arrow-long-right.svg'), parent=self)
-        self.button_next_tenant.setObjectName('IconButton')
-        self.button_next_tenant.setIconSize(QSize(24, 24))
-        self.button_next_tenant.clicked.connect(self.next_page_tenant)
-        self.button_next_tenant.setDisabled(True)
+        self.button_next_owner = QPushButton(icon=QIcon('data/arrow-long-right.svg'), parent=self)
+        self.button_next_owner.setObjectName('IconButton')
+        self.button_next_owner.setIconSize(QSize(24, 24))
+        self.button_next_owner.clicked.connect(self.next_page_owner)
+        self.button_next_owner.setDisabled(True)
 
-        self.button_previous_tenant = QPushButton(icon=QIcon('data/arrow-long-left.svg'), parent=self)
-        self.button_previous_tenant.setObjectName('IconButton')
-        self.button_previous_tenant.setIconSize(QSize(24, 24))
-        self.button_previous_tenant.clicked.connect(self.previous_page_tenant)
-        self.button_previous_tenant.setDisabled(True)
+        self.button_previous_owner = QPushButton(icon=QIcon('data/arrow-long-left.svg'), parent=self)
+        self.button_previous_owner.setObjectName('IconButton')
+        self.button_previous_owner.setIconSize(QSize(24, 24))
+        self.button_previous_owner.clicked.connect(self.previous_page_owner)
+        self.button_previous_owner.setDisabled(True)
 
-        layout_tenant.addWidget(label, 0, 0, 1, 3)
-        layout_tenant.addWidget(InputWrapper(tr('Widgets - Search', 'Search'), self.search_tenant), 1, 0, 1, 3)
-        layout_tenant.addWidget(self.table_view_tenant, 2, 0, 1, 3)
-        layout_tenant.addWidget(self.button_previous_tenant, 3, 0, 1, 1)
-        layout_tenant.addWidget(self.button_next_tenant, 3, 2, 1, 1)
+        layout_owner.addWidget(label, 0, 0, 1, 3)
+        layout_owner.addWidget(InputWrapper(tr('Widgets - Search', 'Search'), self.search_owner), 1, 0, 1, 3)
+        layout_owner.addWidget(self.table_view_owner, 2, 0, 1, 3)
+        layout_owner.addWidget(self.button_previous_owner, 3, 0, 1, 1)
+        layout_owner.addWidget(self.button_next_owner, 3, 2, 1, 1)
 
-        self.owner_frame.setLayout(layout_tenant)
+        self.owner_frame.setLayout(layout_owner)
         # owner_frame end
         
         self.note = QPlainTextEdit(self)
@@ -235,7 +234,7 @@ class ApartmentPage(CustomWindow):
 
         layout.addLayout(layout_back, 0, 0, 1, 4)
         layout.addLayout(layout_search, 1, 0, 1, 3)
-        layout.addWidget(self.table_view, 2, 0, 1, 3)
+        layout.addWidget(self.table_view_transaction, 2, 0, 1, 3)
         layout.addWidget(self.button_previous, 3, 0)
         layout.addWidget(self.button_next, 3, 2)
         layout.addLayout(layout_control, 1, 3, 3, 1)
@@ -260,15 +259,15 @@ class ApartmentPage(CustomWindow):
         self.widget.setLayout(scroll_layout)
 
     def table_click(self, index: QModelIndex):
-        self.Signal.emit({'window': 'tenantList', 'id': self.table_model._data[index.row()]['id']})
+        self.Signal.emit({'window': 'transaction', 'id': self.table_model_transaction._data[index.row()]['id']})
 
     def update_data(self, final_url: str = 0):
-        search = self.search.text()
+        search = self.search_transaction.text()
 
         success, data = TransactionApi.transaction_list(search, final_url)
         if success:
-            self.table_model = TransactionTableModel(data['results'])
-            self.table_view.setModel(self.table_model)
+            self.table_model_transaction = TransactionTableModel(data['results'])
+            self.table_view_transaction.setModel(self.table_model_transaction)
 
             if (data['previous']) is None:
                 self.button_previous.setDisabled(True)
@@ -282,25 +281,25 @@ class ApartmentPage(CustomWindow):
                 self.button_next.setDisabled(False)
                 self._next_page = data['next']
     
-    def update_data_tenant(self, final_url: str = '0\n'):
-        search = self.search.text()
+    def update_data_owner(self, final_url: str = '0\n'):
+        search = self.search_transaction.text()
 
-        success, data = TenantApi.tenant_list(search, final_url)
+        success, data = OwnerApi.owner_list(search, final_url)
         if success:
-            self.table_model_tenant = TenantTableModel(data['results'])
-            self.table_view_tenant.setModel(self.table_model_tenant)
+            self.table_model_owner = ApartmentOwnerTableModel(data['results'])
+            self.table_view_owner.setModel(self.table_model_owner)
 
             if (data['previous']) is None:
-                self.button_previous_tenant.setDisabled(True)
+                self.button_previous_owner.setDisabled(True)
             else:
-                self.button_previous_tenant.setDisabled(False)
-                self._previous_page_tenant = data['previous']
+                self.button_previous_owner.setDisabled(False)
+                self._previous_page_owner = data['previous']
             
             if data['next'] is None:
-                self.button_next_tenant.setDisabled(True)
+                self.button_next_owner.setDisabled(True)
             else:
-                self.button_next_tenant.setDisabled(False)
-                self._next_page_tenant = data['next']
+                self.button_next_owner.setDisabled(False)
+                self._next_page_owner = data['next']
 
     def detail_clicked(self):
         self.panel_detail.setVisible(not self.panel_detail.isVisible())
@@ -311,11 +310,11 @@ class ApartmentPage(CustomWindow):
     def previous_page(self):
         self.update_data(final_url=self._previous_page)
 
-    def next_page_tenant(self):
-        self.update_data(final_url=self._next_page_tenant)
+    def next_page_owner(self):
+        self.update_data(final_url=self._next_page_owner)
 
-    def previous_page_tenant(self):
-        self.update_data(final_url=self._previous_page_tenant)
+    def previous_page_owner(self):
+        self.update_data(final_url=self._previous_page_owner)
 
     def save(self):
         data = {
