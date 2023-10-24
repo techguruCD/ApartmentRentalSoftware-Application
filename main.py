@@ -16,7 +16,8 @@ from pages import (
     TaskListPage,
     ApartmentPage,
     OwnerPage,
-    LeaseContractPage
+    LeaseContractPage,
+    HomePage
 )
 
 import widgets.dialogs as dialogs
@@ -32,7 +33,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.windows_queue = []
 
-        self.set_window('apartment')
+        self.set_window('home')
 
         self.show()
 
@@ -56,6 +57,10 @@ class MainWindow(QtWidgets.QMainWindow):
                 window = UtilityBillsPaymentsPage()
                 window.setMinimumSize(600, 400)
                 return
+            
+            case 'home':
+                self.setCentralWidget(HomePage(**kwargs))
+                self.setMinimumSize(900, 800)
 
             case 'reminder':
                 self.setCentralWidget(ReminderPage(**kwargs))
@@ -71,7 +76,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
             case 'task_list':
                 self.setCentralWidget(TaskListPage(**kwargs))
-                self.setMinimumSize(600, 400)
+                self.setMinimumSize(900, 800)
 
             case 'tenant':
                 self.setCentralWidget(TenantPage(**kwargs))

@@ -37,11 +37,15 @@ class HomePage(CustomWindow):
         self.setWindowTitle(tr('HomePage - Title', 'Home'))
         self._next_page = None
         self._previous_page = None
+        self._current_page = None
 
         self.__init_UI()
 
         self.update_data()
         self.table_view.resizeColumnsToContents()
+
+        self.SignalUpdate.connect(self._update_data_signal_handler)
+
 
     def __init_UI(self):
         self.setObjectName("Window")
@@ -63,6 +67,7 @@ class HomePage(CustomWindow):
         self.search = QLineEdit(self)
         self.search.setObjectName('Input')
         self.search.setPlaceholderText('🔍')
+        self.search.textChanged.connect(lambda _: self.update_data())
 
         self.table_model = ApartmentTableModel([])
         self.table_view = QTableView(self)
@@ -71,6 +76,7 @@ class HomePage(CustomWindow):
 
         self.table_view.setEditTriggers(QTableView.EditTrigger.NoEditTriggers)
         self.table_view.setSelectionMode(QTableView.SelectionMode.NoSelection)
+        self.table_view.horizontalHeader().setStretchLastSection(True)
         self.table_view.doubleClicked.connect(self.table_click)
         self.table_view.hideColumn(0)
 
@@ -119,14 +125,18 @@ class HomePage(CustomWindow):
         layout.addLayout(layout_control, 1, 3, 3, 1)
         layout.addWidget(button_cancel, 4, 0, 1, 4)
 
+        layout.setRowStretch(2, 1)
+
         self.widget.setLayout(layout)
 
     def table_click(self, index: QModelIndex):
-        self.Signal.emit({'window': 'tenantList', 'id': self.table_model._data[index.row()]['id']})
+        self.Signal.emit({'window': 'apartment', 'id': self.table_model._data[index.row()]['id']})
 
-    def update_data(self, final_url: str = 0):
+    def _update_data_signal_handler(self):
+        self.update_data(self._current_page)
+
+    def update_data(self, final_url: str = None):
         search = self.search.text()
-
         success, data = api.apartment_list(search, final_url)
         if success:
             self.table_model = ApartmentTableModel(data['results'])
@@ -143,6 +153,8 @@ class HomePage(CustomWindow):
             else:
                 self.button_next.setDisabled(False)
                 self._next_page = data['next']
+
+            self._current_page = data['current']
     
     def next_page(self):
         self.update_data(final_url=self._previous_page)

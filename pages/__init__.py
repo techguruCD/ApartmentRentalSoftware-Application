@@ -5,6 +5,7 @@
 # from .ReminderPage import ReminderPage
 # from .TransactionPage import TransactionPage
 
+from .HomePage import HomePage
 from .TaskPage import TaskPage
 from .TaskListPage import TaskListPage
 from .ReminderPage import ReminderPage

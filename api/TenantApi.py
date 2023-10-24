@@ -48,7 +48,7 @@ def _filter(search, status, queryset):
 
 def tenant_list(search: str = None, status: str = None, final_url: str = None) -> tuple[bool, dict | None]:
     queryset = Tenant.select()
-    page, previous_page, current_page, next_page = 1, None, final_url, None
+    page, previous_page, next_page = 1, None, None
 
     if final_url is not None:
         page, search, status = final_url.split('\n')
@@ -63,8 +63,6 @@ def tenant_list(search: str = None, status: str = None, final_url: str = None) -
 
         if pages > 1 and page < pages:
             next_page = f'{page + 1}\n{search}\n{status}'
-
-        current_page = f'{page}\n{search}\n{status}'
 
     else:
         queryset = _filter(search, status, queryset)
