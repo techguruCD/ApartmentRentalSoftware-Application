@@ -90,15 +90,15 @@ class OwnerPage(CustomWindow):
         }
         success, new_owner = api.create_owner(data)
         if not success:
-            dialog = Dialog(tr('OwnerPage - Error title', 'Update error'),
-                            tr('OwnerPage - Error text', 'An error occurred while updating data!'),
+            dialog = Dialog(tr('Dialog - Error title', 'Update error'),
+                            tr('Dialog - Error text', 'An error occurred while updating data!'),
                             'error')
             # if dialog.is_accepted:
             #     self.SignalClose.emit()
         else:
             dialog = Dialog(tr('OwnerPage - Success title', 'Save success'),
                             tr('OwnerPage - Success text', 'Save success'),
-                            'error')
+                            'success')
 
     def cancel(self):
         self.SignalClose.emit()

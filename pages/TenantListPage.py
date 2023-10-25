@@ -24,6 +24,8 @@ from PySide6.QtWidgets import (
     QSizePolicy
 )
 
+from models import TENANT_STATUS
+
 import api.TenantApi as api
 from widgets.elements import InputWrapper, CustomWindow
 from tablemodels.TenantTableModel import TenantTableModel
@@ -36,11 +38,14 @@ class TenantListPage(CustomWindow):
         self.setWindowTitle(tr('TenantListPage - Title', 'Tenant List'))
         self._next_page = None
         self._previous_page = None
+        self._current_page = None
 
         self.__init_UI()
-
         self.update_data()
-        # self.table_view.resizeColumnsToContents()
+        self.table_view.horizontalHeader().setStretchLastSection(True)
+        self.table_view.resizeColumnsToContents()
+
+        self.SignalUpdate.connect(self._update_data_signal_handler)
 
     def __init_UI(self):
         self.setObjectName("Window")
@@ -62,11 +67,13 @@ class TenantListPage(CustomWindow):
         self.search = QLineEdit(self)
         self.search.setObjectName('Input')
         self.search.setPlaceholderText('🔍')
+        self.search.textChanged.connect(lambda _: self.update_data())
         self.combo_status = QComboBox(self)
         self.combo_status.setObjectName('Input')
-        self.combo_status.addItem('All')
-        self.combo_status.addItem('Active')
-        self.combo_status.addItem('Inactive')
+        self.combo_status.addItem(tr('TenantStatus - All', 'All'))
+        self.combo_status.addItem(tr('TenantStatus - Active', 'Active'))
+        self.combo_status.addItem(tr('TenantStatus - Inactive', 'Inactive'))
+        self.combo_status.currentIndexChanged.connect(lambda _: self.update_data())
         layout_search = QHBoxLayout()
         layout_search.addWidget(InputWrapper(tr('Widgets - Search', 'Search'), self.search))
         layout_search.addWidget(InputWrapper(tr('Widgets - Status', 'Status'), self.combo_status))
@@ -124,9 +131,9 @@ class TenantListPage(CustomWindow):
         layout.addWidget(self.table_view, 2, 0, 1, 3)
         layout.addWidget(self.button_previous, 3, 0)
         layout.addWidget(self.button_next, 3, 2)
-        layout.addLayout(layout_control, 2, 3, 2, 1)
+        layout.addLayout(layout_control, 1, 3, 3, 1)
         # layout.addWidget(button_cancel, 4, 0, 1, 4)
-
+        layout.setRowStretch(2, 1)
         self.widget.setLayout(layout)
 
     def table_click(self, index: QModelIndex):
@@ -135,10 +142,21 @@ class TenantListPage(CustomWindow):
     def new_tenant_click(self):
         self.Signal.emit({'window': 'tenant'})
 
-    def update_data(self, final_url: str = '1\n'):
-        search = self.search.text()
+    def _update_data_signal_handler(self):
+        self.update_data(self._current_page)
 
-        success, data = api.tenant_list(search, final_url)
+    def update_data(self, final_url: str = None):
+        search = self.search.text()
+        status = None
+        if search == "":
+            search = None
+        match self.combo_status.currentIndex():
+            case 1:
+                status = 'active'
+            case 2:
+                status = 'inactive'
+
+        success, data = api.tenant_list(search, status, final_url)
         if success:
             self.table_model = TenantTableModel(data['results'])
             self.table_view.setModel(self.table_model)
@@ -154,12 +172,11 @@ class TenantListPage(CustomWindow):
             else:
                 self.button_next.setDisabled(False)
                 self._next_page = data['next']
+            
+            self._current_page = data['current']
     
     def next_page(self):
         self.update_data(final_url=self._previous_page)
     
     def previous_page(self):
         self.update_data(final_url=self._previous_page)
-
-    # def cancel(self):
-    #     self.SignalClose.emit()

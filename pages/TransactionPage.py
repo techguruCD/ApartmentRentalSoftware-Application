@@ -185,8 +185,8 @@ class TransactionPage(CustomWindow):
         #     'note': self.note.toPlainText()
         # }
         if not TransactionApi.create_transaction(None):
-            dialog = Dialog(tr('TransactionPage - Error title', 'Save error'),
-                            tr('TransactionPage - Error text', 'An error occurred while updating data!'),
+            dialog = Dialog(tr('Dialog - Error title', 'Update error'),
+                            tr('Dialog - Error text', 'An error occurred while updating data!'),
                             'error')
             if dialog.is_accepted:
                 self.SignalClose.emit()

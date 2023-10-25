@@ -18,14 +18,7 @@ from pages import (
 
 import widgets.dialogs as dialogs
 
-pages = {
-    'tenantList': TenantListPage,
-    'tenant': TenantPage,
-}
-
 class MainWindow(QtWidgets.QMainWindow):
-    pages = []
-    central = None
     def __init__(self) -> None:
         super().__init__()
 
@@ -85,6 +78,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
             case 'back':
                 window, min_size = self.windows_queue.pop(-1)
+                window.SignalUpdate.emit()
                 self.setCentralWidget(window)
                 self.setMinimumSize(min_size)
                 return
