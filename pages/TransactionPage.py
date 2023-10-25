@@ -163,16 +163,16 @@ class TransactionPage(CustomWindow):
         self.widget.setLayout(scroll_layout)
 
     def next_page_tenant(self):
-        self.update_data(final_url=self._next_page_tenant)
+        self.update_data_tenant(final_url=self._next_page_tenant)
 
     def previous_page_tenant(self):
-        self.update_data(final_url=self._previous_page_tenant)
+        self.update_data_tenant(final_url=self._previous_page_tenant)
 
     def next_page_apartment(self):
-        self.update_data(final_url=self._next_page_apartment)
+        self.update_data_apartment(final_url=self._next_page_apartment)
 
     def previous_page_apartment(self):
-        self.update_data(final_url=self._previous_page_apartment)
+        self.update_data_apartment(final_url=self._previous_page_apartment)
 
     def save(self):
         # data = {

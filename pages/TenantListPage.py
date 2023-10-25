@@ -77,6 +77,8 @@ class TenantListPage(CustomWindow):
         layout_search = QHBoxLayout()
         layout_search.addWidget(InputWrapper(tr('Widgets - Search', 'Search'), self.search))
         layout_search.addWidget(InputWrapper(tr('Widgets - Status', 'Status'), self.combo_status))
+        layout_search.setStretch(0, 2)
+        layout_search.setStretch(1, 1)
 
         self.table_model = TenantTableModel([])
         self.table_view = QTableView(self)

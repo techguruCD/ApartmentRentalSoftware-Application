@@ -138,6 +138,9 @@ class HomePage(CustomWindow):
 
     def update_data(self, final_url: str = None):
         search = self.search.text()
+        if search == "":
+            search = None
+            
         success, data = api.apartment_list(search, final_url)
         if success:
             self.table_model = ApartmentTableModel(data['results'])

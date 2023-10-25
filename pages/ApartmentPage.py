@@ -89,7 +89,8 @@ class ApartmentPage(CustomWindow):
         layout_search = QHBoxLayout()
         layout_search.addWidget(InputWrapper(tr('Widgets - Search', 'Search'), self.search_transaction))
         layout_search.addWidget(InputWrapper(tr('Widgets - Status', 'Status'), self.combo_status))
-        layout_search.setStretch(0, 1)
+        layout_search.setStretch(0, 2)
+        layout_search.setStretch(1, 1)
 
         self.table_model_transaction = TransactionTableModel([])
         self.table_view_transaction = QTableView(self)
@@ -288,6 +289,9 @@ class ApartmentPage(CustomWindow):
     def update_data_transaction(self, final_url: str = 0):
         search = self.search_transaction.text()
 
+        if search == "":
+            search = None
+
         success, data = TransactionApi.transaction_list(search, final_url)
         if success:
             self.table_model_transaction = TransactionTableModel(data['results'])
@@ -307,6 +311,8 @@ class ApartmentPage(CustomWindow):
     
     def update_data_owner(self, final_url: str = '0\n'):
         search = self.search_transaction.text()
+        if search == "":
+            search = None
 
         success, data = OwnerApi.owner_list(search, final_url)
         if success:
